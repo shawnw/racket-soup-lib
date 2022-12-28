@@ -1,0 +1,9 @@
+#lang info
+(define collection "soup-lib")
+(define deps '("base" "extra-srfi-libs"))
+(define build-deps '("scribble-lib" "racket-doc" "rackunit-lib"))
+(define scribblings '(("scribblings/soup-lib.scrbl" ())))
+(define pkg-desc "Assorted useful routines")
+(define version "0.0")
+(define pkg-authors '(shawnw))
+(define license '(Apache-2.0 OR MIT))
