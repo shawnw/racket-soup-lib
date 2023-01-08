@@ -1,27 +1,109 @@
 #lang racket/base
 
-(require syntax/parse/define srfi/214
+(require syntax/parse/define racket/fixnum racket/unsafe/ops
          (for-syntax racket/base syntax/for-body))
 (module+ test (require rackunit))
-(provide for/string for*/string)
+(provide for/string for*/string for/bytes for*/bytes for/max for*/max for/min for*/min)
 
-(define-syntax-parse-rule (for/string clauses body ... tail-expr)
+(define-syntax-parse-rule (for/string (~optional (~seq #:length slen:expr)) clauses body ... tail-expr)
   #:with original this-syntax
   #:with ((pre-body ...) (post-body ...)) (split-for-body this-syntax #'(body ... tail-expr))
-  (for/fold/derived original ([chars (flexvector)]
-                              #:result (flexvector->string chars))
-    clauses
-    pre-body ...
-    (flexvector-add-back! chars (let () post-body ...))))
+  #:with rlen #'(~? slen 32)
+  (begin
+    (unless (and (fixnum? rlen) (> rlen 0))
+      (raise-arguments-error 'for/string "length must be a positive fixnum" "#:length" rlen))
+    (for/fold/derived original ([chars (make-string rlen)]
+                                [len rlen]
+                                [n 0]
+                                #:result (if (unsafe-fx= n len) chars (substring chars 0 n)))
+      clauses
+      pre-body ...
+      (let ([ch (let () post-body ...)])
+        (unless (char? ch)
+          (raise-arguments-error 'for/string "body must return a character" "value" ch))
+        (if (unsafe-fx< n len)
+            (begin
+              (unsafe-string-set! chars n ch)
+              (values chars len (unsafe-fx+ n 1)))
+            (let ([new-chars (make-string (fl->fx (* len 1.5)))])
+              (string-copy! new-chars 0 chars)
+              (unsafe-string-set! new-chars n ch)
+              (values new-chars (unsafe-string-length new-chars) (unsafe-fx+ n 1))))))))
 
-(define-syntax-parse-rule (for*/string clauses body ... tail-expr)
+(define-syntax-parse-rule (for*/string (~optional (~seq #:length slen:expr)) clauses body ... tail-expr)
   #:with original this-syntax
   #:with ((pre-body ...) (post-body ...)) (split-for-body this-syntax #'(body ... tail-expr))
-  (for*/fold/derived original ([chars (flexvector)]
-                              #:result (flexvector->string chars))
-    clauses
-    pre-body ...
-    (flexvector-add-back! chars (let () post-body ...))))
+  #:with rlen #'(~? slen 32)
+  (begin
+    (unless (and (fixnum? rlen) (> rlen 0))
+      (raise-arguments-error 'for*/string "length must be an positive fixnum" "#:length" rlen))
+    (for*/fold/derived original ([chars (make-string rlen)]
+                                 [len rlen]
+                                 [n 0]
+                                 #:result (if (unsafe-fx= n len) chars (substring chars 0 n)))
+      clauses
+      pre-body ...
+      (let ([ch (let () post-body ...)])
+        (unless (char? ch)
+          (raise-arguments-error 'for*/string "body must return a character" "value" ch))
+        (if (unsafe-fx< n len)
+            (begin
+              (unsafe-string-set! chars n ch)
+              (values chars len (unsafe-fx+ n 1)))
+            (let ([new-chars (make-string (fl->fx (* len 1.5)))])
+              (string-copy! new-chars 0 chars)
+              (unsafe-string-set! new-chars n ch)
+              (values new-chars (unsafe-string-length new-chars) (unsafe-fx+ n 1))))))))
+
+(define-syntax-parse-rule (for/bytes (~optional (~seq #:length slen:expr)) clauses body ... tail-expr)
+  #:with original this-syntax
+  #:with ((pre-body ...) (post-body ...)) (split-for-body this-syntax #'(body ... tail-expr))
+  #:with rlen #'(~? slen 32)
+  (begin
+    (unless (and (fixnum? rlen) (> rlen 0))
+      (raise-arguments-error 'for/bytes "length must be a positive fixnum" "#:length" rlen))
+    (for/fold/derived original ([bytes (make-bytes rlen)]
+                                [len rlen]
+                                [n 0]
+                                #:result (if (unsafe-fx= n len) bytes (subbytes bytes 0 n)))
+      clauses
+      pre-body ...
+      (let ([ch (let () post-body ...)])
+        (unless (byte? ch)
+          (raise-arguments-error 'for/bytes "body must return a byte" "value" ch))
+        (if (unsafe-fx< n len)
+            (begin
+              (unsafe-bytes-set! bytes n ch)
+              (values bytes len (unsafe-fx+ n 1)))
+            (let ([new-bytes (make-bytes (fl->fx (* len 1.5)))])
+              (bytes-copy! new-bytes 0 bytes)
+              (unsafe-bytes-set! new-bytes n ch)
+              (values new-bytes (unsafe-bytes-length new-bytes) (unsafe-fx+ n 1))))))))
+
+(define-syntax-parse-rule (for*/bytes (~optional (~seq #:length slen:expr)) clauses body ... tail-expr)
+  #:with original this-syntax
+  #:with ((pre-body ...) (post-body ...)) (split-for-body this-syntax #'(body ... tail-expr))
+  #:with rlen #'(~? slen 32)
+  (begin
+    (unless (and (fixnum? rlen) (> rlen 0))
+      (raise-arguments-error 'for*/bytes "length must be an positive fixnum" "#:length" rlen))
+    (for*/fold/derived original ([bytes (make-bytes rlen)]
+                                 [len rlen]
+                                 [n 0]
+                                 #:result (if (unsafe-fx= n len) bytes (subbytes bytes 0 n)))
+      clauses
+      pre-body ...
+      (let ([ch (let () post-body ...)])
+        (unless (byte? ch)
+          (raise-arguments-error 'for*/bytes "body must return a byte" "value" ch))
+        (if (unsafe-fx< n len)
+            (begin
+              (unsafe-bytes-set! bytes n ch)
+              (values bytes len (unsafe-fx+ n 1)))
+            (let ([new-bytes (make-bytes (fl->fx (* len 1.5)))])
+              (bytes-copy! new-bytes 0 butes)
+              (unsafe-bytes-set! new-bytes n ch)
+              (values new-bytes (unsafe-bytes-length new-chars) (unsafe-fx+ n 1))))))))
 
 (define-syntax-parse-rule (for/max clauses body ... tail-expr)
   #:with original this-syntax
@@ -61,5 +143,9 @@
 
 (module+ test
   (check-equal? (for/string ([ch (in-list '(#\a #\b #\c #\d))]) ch) "abcd")
+  (check-equal? (for/string #:length (string-length "abcd") ([ch (in-list '(#\a #\b #\c #\d))]) (char-upcase ch)) "ABCD")
+  (check-equal? (for/bytes ([ch (in-list '(#\a #\b #\c #\d))]) (char->integer ch)) #"abcd")
+  (check-equal? (for/bytes #:length 4 ([ch (in-list '(#\a #\b #\c #\d))]) (char->integer (char-upcase ch))) #"ABCD")
+
   (check-equal? (for/min ([n (in-range 1 10)]) (* n 2)) 2)
   (check-equal? (for/max ([n (in-range 1 11)]) (* n 2)) 20))

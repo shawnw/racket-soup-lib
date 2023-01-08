@@ -54,16 +54,36 @@ Provides all the functions exported by the modules below.
 }
 
 
-@defform[(for/string (sequences) body ...+)]{
+@defform[(for/string [#:length exact-positive-integer?] (sequences) body ...+)]{
 
 @code{body ...} must evaluate to a single character at each iteration, all of which are returned as a string.
+
+ The optional @code{#:length} argument can be used to give the expected length of the result as an optimization.
 
 }
 
-@defform[(for*/string (sequences) body ...+)]{
+@defform[(for*/string [#:length exact-positive-integer?] (sequences) body ...+)]{
 
 @code{body ...} must evaluate to a single character at each iteration, all of which are returned as a string.
-                               
+
+ The optional @code{#:length} argument can be used to give the expected length of the result as an optimization.
+ 
+}
+
+@defform[(for/bytes [#:length exact-positive-integer?] (sequences) body ...+)]{
+
+@code{body ...} must evaluate to a single byte at each iteration, all of which are returned as a bytestring.
+
+ The optional @code{#:length} argument can be used to give the expected length of the result as an optimization.
+
+}
+
+@defform[(for*/bytes [#:length exact-positive-integer?] (sequences) body ...+)]{
+
+@code{body ...} must evaluate to a single byte at each iteration, all of which are returned as a bytestring.
+
+ The optional @code{#:length} argument can be used to give the expected length of the result as an optimization.
+ 
 }
 
 @section{List-related functions}
