@@ -86,6 +86,28 @@ Provides all the functions exported by the modules below.
  
 }
 
+@section{Hash Table functions}
+
+@defmodule[soup-lib/hash]
+
+@defproc[(hash->vector [htab hash?]) (vectorof pair?)]{
+
+ Returns a vector holding the contents of the hash table as key-value pairs in an unspecified order.
+
+}
+
+@defproc[(hash-keys/vector [htab hash?]) vector?]{
+
+ Returns a vector holding the keys of the hash table in an unspecified order.
+
+}
+
+@defproc[(hash-values/vector [htab hash?]) vector?]{
+
+ Returns a vector holding the values of the hash table in an unspecified order.
+
+}
+
 @section{List-related functions}
 
 @defmodule[soup-lib/list]
