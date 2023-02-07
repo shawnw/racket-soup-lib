@@ -1,6 +1,6 @@
 #lang racket/base
 
-(require racket/contract racket/function racket/list racket/sequence srfi/141)
+(require racket/contract racket/function racket/list racket/sequence (only-in srfi/1 append-reverse) srfi/141)
 (module+ test (require rackunit))
 (provide
  (contract-out
@@ -21,6 +21,8 @@
   [sublis (->* ((listof pair?) any/c) (#:key (-> any/c any/c) #:test (-> any/c any/c any/c)) any/c)]
   [subst (->* (any/c any/c any/c) (#:key (-> any/c any/c) #:test (-> any/c any/c any/c)) any/c)]
   [subst-if (->* (any/c (-> any/c any/c) any/c) (#:key (-> any/c any/c)) any/c)]
+  (tail? (-> any/c (or/c pair? null?) boolean?))
+  [ldiff (-> (or/c pair? null?) any/c (or/c pair? null?))]
   ))
 
 (define (any-null? lol) (ormap null? lol))
@@ -60,8 +62,7 @@
 
 (define (sublis alist tree #:test [test eqv?] #:key [key identity])
   (cond
-    ((assoc (key tree) alist test)
-     => cdr)
+    ((assoc (key tree) alist test) => cdr)
     ((pair? tree)
      (let ([new-car (sublis alist (car tree) #:test test #:key key)]
            [new-cdr (sublis alist (cdr tree) #:test test #:key key)])
@@ -94,6 +95,22 @@
            tree
            (cons new-car new-cdr))))
     (else tree)))
+             
+(define (tail? obj list)
+  (let loop ([tail list])
+    (cond
+      ((eqv? obj tail) #t)
+      ((pair? tail) (loop (cdr tail)))
+      (else #f))))
+
+(define (ldiff list obj)
+  (let loop ([tail list]
+             [res '()])
+    (cond
+      ((eqv? obj tail) (reverse res))
+      ((pair? tail) (loop (cdr tail) (cons (car tail) res)))
+      ((null? tail) (reverse res))
+      (else (append-reverse res tail)))))
 
 (define (lmin list [< <])
   (foldl (lambda (elem curr-min)
@@ -186,4 +203,36 @@
                 '((old . spice) ((old . shoes) a . cons) (a . cons)))
 
   (check-equal? (subst-if 5 list? tree1) 5)
+
+  (define list1 '(a b c))
+  (define list2 '(a b c . d))
+  (check-true (tail? list1 list1))
+  (check-true (tail? (cddr list1) list1))
+  (check-false (tail? '(c) list1))
+  (check-false (tail? '(f g h) list1))
+  (check-true (tail? '() list1))
+  (check-false (tail? 'd list1))
+  (check-false (tail? 'x list1))
+  (check-true (tail? list2 list2))
+  (check-true (tail? (cddr list2) list2))
+  (check-false (tail? (cons 'c 'd) list2))
+  (check-false (tail? '(f g h) list2))
+  (check-false (tail? '() list2))
+  (check-true (tail? 'd list2))
+  (check-false (tail? 'x list2))
+  
+  (check-equal? (ldiff list1 list1) '())
+  (check-equal? (ldiff list1 (cddr list1)) '(a b))
+  (check-equal? (ldiff list1 '(c)) '(a b c))
+  (check-equal? (ldiff list1 '(f g h)) '(a b c))
+  (check-equal? (ldiff list1 '()) '(a b c))
+  (check-equal? (ldiff list1 'd) '(a b c))
+  (check-equal? (ldiff list1 'x) '(a b c))
+  (check-equal? (ldiff list2 list2) '())
+  (check-equal? (ldiff list2 (cddr list2)) '(a b))
+  (check-equal? (ldiff list2 (cons 'c 'd)) '(a b c . d))
+  (check-equal? (ldiff list2 '(f g h)) '(a b c . d))
+  (check-equal? (ldiff list2 '()) '(a b c . d))
+  (check-equal? (ldiff list2 'd) '(a b c))
+  (check-equal? (ldiff list2 'x) '(a b c . d))  
   )

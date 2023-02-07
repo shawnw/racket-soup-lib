@@ -2,7 +2,7 @@
 @require[@for-label[soup-lib
                     racket/base racket/function]]
 
-@title{A library of useful routines}
+@title{Soup: A library of useful routines}
 @author[@author+email["Shawn Wagner" "shawnw.mobile@gmail.com"]]
 
 A collection of useful functions not important enough to spin off into their own packages.
@@ -174,5 +174,17 @@ Sometimes with better names.
 @defproc[(append-maplist [proc procedure?] [list list?] ...+) list?]{
 
  See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_mapc_.htm"]{Common Lisp @racket{mapcon}}.
+
+}
+
+@defproc[(tail? [obj any/c] [list (or/c pair? null?)]) boolean?]{
+
+ See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_ldiffc.htm"]{Common Lisp @racket{tailp}}.
+
+}
+
+@defproc[(ldiff [list (or/c pair? null?)] [obj any/c] ) (or/c pair? null?)]{
+
+ See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_ldiffc.htm"]{Common Lisp @racket{ldiff}}.
 
 }
