@@ -108,6 +108,13 @@ Provides all the functions exported by the modules below.
 
 }
 
+@defproc[(hash->immutable-hash [htab hash?]) (and/c hash? hash-strong? immutable?)]{
+
+ Returns an immutable version of @code{htab} (If @code{htab} is already immutable, it's returned) using the same
+ underlying comparison routine as the original.
+
+}
+
 @section{List-related functions}
 
 @defmodule[soup-lib/list]
