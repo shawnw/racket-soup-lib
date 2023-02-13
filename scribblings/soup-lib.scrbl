@@ -195,3 +195,15 @@ Sometimes with better names.
  See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_ldiffc.htm"]{Common Lisp @racket{ldiff}}.
 
 }
+
+@defproc[(rassoc [item any/c] [alist (listof pair?)] [#:key key (-> any/c any/c) identity] [#:test test (-> any/c any/c any/c) eqv?]) (or/c pair? #f)]{
+
+ See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_rassoc.htm"]{Common Lisp @racket{rassoc}}.
+
+}
+
+@defproc[(rassoc-if [pred? (-> any/c any/c)] [alist (listof pair?)] [#:key key (-> any/c any/c) identity]) (or/c pair? #f)]{
+
+ See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_rassoc.htm"]{Common Lisp @racket{rassoc-if}}.
+
+}

@@ -23,6 +23,9 @@
   [subst-if (->* (any/c (-> any/c any/c) any/c) (#:key (-> any/c any/c)) any/c)]
   (tail? (-> any/c (or/c pair? null?) boolean?))
   [ldiff (-> (or/c pair? null?) any/c (or/c pair? null?))]
+  [rassoc (->* (any/c (listof pair?)) (#:key (-> any/c any/c) #:test (-> any/c any/c any/c)) (or/c pair? #f))]
+  [rassoc-if (->* ((-> any/c any/c) (listof pair?)) (#:key (-> any/c any/c)) (or/c pair? #f))]
+
   ))
 
 (define (any-null? lol) (ormap null? lol))
@@ -111,6 +114,19 @@
       ((pair? tail) (loop (cdr tail) (cons (car tail) res)))
       ((null? tail) (reverse res))
       (else (append-reverse res tail)))))
+
+(define (rassoc item alist #:key [key identity] #:test [test eqv?])
+  (cond
+    ((null? alist) #f)
+    ((test item (key (cdar alist))) (car alist))
+    (else (rassoc item (cdr alist) #:key key #:test test))))
+
+(define (rassoc-if pred? alist #:key [key identity])
+  (cond
+    ((null? alist) #f)
+    ((pred? (key (cdar alist))) (car alist))
+    (else (rassoc-if pred? (cdr alist) #:key key))))
+
 
 (define (lmin list [< <])
   (foldl (lambda (elem curr-min)
@@ -234,5 +250,13 @@
   (check-equal? (ldiff list2 '(f g h)) '(a b c . d))
   (check-equal? (ldiff list2 '()) '(a b c . d))
   (check-equal? (ldiff list2 'd) '(a b c))
-  (check-equal? (ldiff list2 'x) '(a b c . d))  
+  (check-equal? (ldiff list2 'x) '(a b c . d))
+
+  (define alist '((1 . "one") (2 . "two") (3 . 3)))
+  (check-equal? (rassoc 3 alist) '(3 . 3))
+  (check-false (rassoc (string-copy "two") alist))
+  (check-equal? (rassoc "two" alist #:test equal?) '(2 . "two"))
+  (check-equal? (rassoc 1 alist #:key (lambda (x) (if (number? x) (/ x 3) #f))) '(3 . 3))
+  (check-equal? (rassoc 'a '((a . b) (b . c) (c . a) (z . a))) '(c . a))
+  (check-equal? (rassoc-if string? alist) '(1 . "one"))
   )
