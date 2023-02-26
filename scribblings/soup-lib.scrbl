@@ -207,3 +207,25 @@ Sometimes with better names.
  See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_rassoc.htm"]{Common Lisp @racket{rassoc-if}}.
 
 }
+
+@section{String functions}
+
+@defmodule[soup-lib/string]
+
+@defproc[(string-join/vector [strs (vectorof string?)] [sep string? " "]) string?]{
+
+ Like @code{string-join} but takes a vector of strings instead of a list of strings.
+
+}
+
+@defproc[(string->vector [s string?]) (vectorof char?)]{
+
+ Like @code{string->list} but returns a vector instead.
+
+}
+
+@defproc[(vector->string [vc (vectorof char?)]) string?]{
+
+ Like @code{list->string} but takes a vector instead.
+
+}
