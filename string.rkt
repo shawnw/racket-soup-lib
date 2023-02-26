@@ -1,13 +1,16 @@
 #lang racket/base
 
-(require racket/contract racket/unsafe/ops)
+(require racket/contract racket/unsafe/ops racket/vector)
 (module+ test (require rackunit))
 
 (provide
  (contract-out
   [string->vector (-> string? vector?)]
   [vector->string (-> (vectorof char?) string?)]
-  [string-join/vector (->* ((vectorof string?)) (string?) string?)]))
+  [string-join/vector (->* ((vectorof string?)) (string?) string?)]
+  [string-sort (->* (string?) ((-> char? char? any/c)) string?)]
+  [string-sort! (->* ((and/c string? (not/c immutable?))) ((-> char? char? any/c)) void?)]
+  ))
 
 ; (-> (and/c string? (not/c immutable?)) fixnum? string? (values string? fixnum?))
 (define (string-append! buffer end-idx s)
@@ -35,8 +38,25 @@
 (define (vector->string vc)
   (build-string (unsafe-vector-length vc) (lambda (i) (unsafe-vector-ref vc i))))
 
+(define (string-sort s [<? unsafe-char<?])
+  (let ([v (string->vector s)])
+    (vector-sort! v <?)
+    (vector->string v)))
+
+(define (string-sort! s [<? unsafe-char<?])
+  (let ([v (string->vector s)])
+    (vector-sort! v <?)
+    (for ([i (in-range (unsafe-string-length s))])
+      (unsafe-string-set! s i (unsafe-vector-ref v i)))))
+
+
 (module+ test
   (check-equal? (string-join/vector #("a" "b" "c")) "a b c")
   (check-equal? (string-join/vector #("a" "longer" "series" "of strings" "to join" "together")) "a longer series of strings to join together")
   (check-equal? (string->vector "foobar") #(#\f #\o #\o #\b #\a #\r))
-  (check-equal? (vector->string #(#\f #\o #\o #\b #\a #\r)) "foobar"))
+  (check-equal? (vector->string #(#\f #\o #\o #\b #\a #\r)) "foobar")
+  (check-equal? (string-sort "defab") "abdef")
+  (define s (string-copy "defab"))
+  (string-sort! s)
+  (check-equal? s "abdef")
+  )

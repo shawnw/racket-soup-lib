@@ -1,6 +1,6 @@
 #lang scribble/manual
 @require[@for-label[soup-lib
-                    racket/base racket/function]]
+                    racket/base racket/contract racket/function]]
 
 @title{Soup: A library of useful routines}
 @author[@author+email["Shawn Wagner" "shawnw.mobile@gmail.com"]]
@@ -227,5 +227,17 @@ Sometimes with better names.
 @defproc[(vector->string [vc (vectorof char?)]) string?]{
 
  Like @code{list->string} but takes a vector instead.
+
+}
+
+@defproc[(string-sort [s string?] [<? (-> char? char? any/c) char<?]) string?]{
+
+ Returns a copy of @code{s} with its characters sorted according to @code{<?}.
+
+}
+
+@defproc[(string-sort! [s (and/c string? (not/c immutable?))] [<? (-> char? char? any/c) char<?]) void?]{
+
+ Sorts @code{s} in-place.
 
 }
