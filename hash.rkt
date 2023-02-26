@@ -8,7 +8,7 @@
   [hash->vector (-> hash? (vectorof pair?))]
   [hash-keys/vector (-> hash? vector?)]
   [hash-values/vector (-> hash? vector?)]
-  [hash->immutable-hash (-> hash? (and/c hash? hash-strong? immutable?))]
+  [hash->immutable-hash (-> hash? (and/c hash? immutable?))]
   ))
 
 (define (hash->vector htab)
