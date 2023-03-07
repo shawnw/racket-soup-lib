@@ -1,11 +1,13 @@
 #lang scribble/manual
 @require[@for-label[soup-lib
-                    racket/base racket/contract racket/function]]
+                    racket/base racket/contract racket/function json]]
 
 @title{Soup: A library of useful routines}
 @author[@author+email["Shawn Wagner" "shawnw.mobile@gmail.com"]]
 
 A collection of useful functions not important enough to spin off into their own packages.
+
+@table-of-contents[]
 
 @section{Top level interface}
 
@@ -239,5 +241,36 @@ Sometimes with better names.
 @defproc[(string-sort! [s (and/c string? (not/c immutable?))] [<? (-> char? char? any/c) char<?]) void?]{
 
  Sorts @code{s} in-place.
+
+}
+
+
+@section{JSON functions}
+
+@defmodule[soup-lib/json]
+
+@defproc[(->jsexpr [js (or/c jsexpr? struct->jsexpr?)]) jsexpr?]{
+
+When called with a value that's already a @code{jsexpr?}, return it. Otherwise, if called on a struct that implements
+the @code{gen:struct->jsexpr} generic interface, call that to convert it to a @code{jsexpr?}.
+
+}
+
+@defproc[(struct->jsexpr? [obj any/c]) boolean?]{
+
+Tests if an object is a struct that implements the @code{gen:struct->jsexpr} interface.
+
+}
+
+@defidform[gen:struct->jsexpr]{
+
+ A generic interface that supplies the @code{->jsexpr} method to convert a struct to a @code{jsepxr?} value for use with JSON modules.
+
+   @codeblock{
+             (struct example (foo bar)
+               #:methods gen:struct->jsexpr
+               ([define (->jsexpr ex) (hasheq 'foo (example-foo ex) 'bar (example-bar ex))]))
+             (->jsexpr (example 1 "cat"))
+ }
 
 }
