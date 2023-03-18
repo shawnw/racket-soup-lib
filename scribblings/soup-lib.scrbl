@@ -274,3 +274,35 @@ Tests if an object is a struct that implements the @code{gen:struct->jsexpr} int
  }
 
 }
+
+@section{Parameter extensions}
+
+@defmodule[soup-lib/parameter]
+
+@defform*[((define-parameter id initial-value)
+           (define-parameter id initial-value guard)
+           (define-parameter id initial-value guard name))
+          #:contracts ([id identifier?]
+                       [initial-value any/c]
+                       [guard (or/c (-> any/c any/c) #f)]
+                       [name symbol?])]{
+
+ Define a parameter with the given name and value.
+
+ The optional @code{guard} and @code{name} arguments are as in @code{make-parameter}.
+
+}
+
+@defform*[((define-boolean-parameter id)
+           (define-boolean-parameter id initial-value)
+           (define-boolean-parameter id initial-value name))
+          #:contracts ([id identifier?]
+                       [initial-value boolean?]
+                       [name symbol?])]{
+
+ Define a boolean parameter with the given name. The default initial value if not given is @code{#t}. Any value can be used to set the parameter,
+ but it's converted to a boolean; in other words it's compatible with the contract @code{(parameter/c any/c boolean?)}.
+
+ The optional @code{name} argument is as in @code{make-parameter}.
+
+}
