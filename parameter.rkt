@@ -18,9 +18,9 @@
   (syntax-parse stx
     ((define-boolean-parameter name:id)
      #'(define-parameter name #t make-boolean))
-    ((define-boolean-parameter name:id default-value:boolean)
-     #'(define-parameter name default-value make-boolean))
-    ((define-boolean-parameter name:id default-value:boolean obj-name:id)
-     #'(define-parameter name default-value make-boolean obj-name))))
+    ((define-boolean-parameter name:id initial-value:boolean)
+     #'(define-parameter name initial-value make-boolean))
+    ((define-boolean-parameter name:id initial-value:boolean obj-name:id)
+     #'(define-parameter name initial-value make-boolean obj-name))))
 
 
