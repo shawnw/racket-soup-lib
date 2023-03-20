@@ -21,7 +21,7 @@
           (append
            (filter values (list string-clause number-clause array-clause object-clause true-clause
                                 false-clause boolean-clause null-clause))
-           (if else-clause (list else-clause) #'((else (raise-arguments-error 'json-match "no matching clause for jsexpr value")))))
+           (if else-clause (list else-clause) #`((else (raise-arguments-error 'json-match "no matching clause for value" "jsexpr" #,jsexpr)))))
           (let ([clause (syntax-e (car clauses))])
             (case (syntax-e (car clause))
               ((string)
@@ -109,5 +109,6 @@
 
   (check-equal? (json-match "foo" (number 'num) (string 'str) (boolean 'bool) (else 'other)) 'str)
   (check-equal? (json-match #t (number 'num) (string 'str) (boolean 'bool) (else 'other)) 'bool)
+  (check-equal? (json-match 1.2 (string 'str) (boolean 'bool) (else 'other)) 'other)
   )
 
