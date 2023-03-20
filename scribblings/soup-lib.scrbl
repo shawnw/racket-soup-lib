@@ -275,6 +275,46 @@ Tests if an object is a struct that implements the @code{gen:struct->jsexpr} int
 
 }
 
+@defform[#:literals (string number array object true false boolean null else)
+(json-match jsexpr match-clause ... maybe-else)
+#:grammar
+[(match-clause
+   (code:line (number expr ...+))
+   (code:line (string expr ...+))
+   (code:line (array expr ...+))
+   (code:line (object expr ...+))
+   (code:line (null expr ...+))
+   (code:line boolean-clause))
+ (boolean-clause
+   (code:line exact-boolean-clause ...)
+   (code:line (boolean expr ...+)))
+ (exact-boolean-clause
+   (code:line (true expr ...+))
+   (code:line (false expr ...+)))
+ (maybe-else
+   (code:line)
+   (else expr ...+))]
+#:contracts
+([jsexpr jsexpr?])
+         ]{
+
+Destructuring match on jsexpr values. Only one of each particular value type can be present. If the type of given @code{jsexpr} is not present
+ and there is no @code{else} clause, an error is raised.
+
+Example:
+
+
+@codeblock{
+           (json-match "foo"
+             (number 'num)
+             (array 'arr)
+             (object 'obj)
+             (string 'str)
+             (else 'other)) ; 'str
+ }
+
+}
+
 @section{Parameter extensions}
 
 @defmodule[soup-lib/parameter]
