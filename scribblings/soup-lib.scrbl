@@ -278,17 +278,22 @@ Tests if an object is a struct that implements the @code{gen:struct->jsexpr} int
 @defform[#:literals (string number array object true false boolean null else)
 (json-match maybe-unsafe jsexpr match-clause ... maybe-else)
 #:grammar
-[(maybe-unsafe (code:line) (code:line #:unsafe #t) (code:line #:unsafe #f))
+[(maybe-unsafe (code:line) #:unsafe)
  (match-clause
    (code:line (number expr ...+))
+   (code:line ((number id) expr ...+))
    (code:line (string expr ...+))
+   (code:line ((string id) expr ...+))
    (code:line (array expr ...+))
+   (code:line ((array id) expr ...+))
    (code:line (object expr ...+))
+   (code:line ((object id) expr ...+))
    (code:line (null expr ...+))
    (code:line boolean-clause))
  (boolean-clause
    (code:line exact-boolean-clause ...)
-   (code:line (boolean expr ...+)))
+   (code:line (boolean expr ...+))
+   (code:line ((boolean id) expr ...+)))
  (exact-boolean-clause
    (code:line (true expr ...+))
    (code:line (false expr ...+)))
@@ -299,10 +304,11 @@ Tests if an object is a struct that implements the @code{gen:struct->jsexpr} int
 ([jsexpr jsexpr?])
          ]{
 
-Conditional evaluation based on the type of a jsexpr value. Only one of each particular type can be present. If the type of the given @code{jsexpr} is not present
- and there is no @code{else} clause, an error is raised.
+Conditional evaluation based on the type of a jsexpr value, possibly binding the value to the given identifier.
+Only one of each particular type can be present. If the type of the given @code{jsexpr} is not present
+and there is no @code{else} clause, an error is raised.
 
-If the optional @code{#:unsafe} keyword is @code{#t}, no check is done to make sure @code{jsexpr} is actually a @code{jsexpr?}. It defaults to @code{#f}.
+If the optional @code{#:unsafe} keyword is given, no check is done to make sure @code{jsexpr} is actually a @code{jsexpr?}.
 
 Example:
 

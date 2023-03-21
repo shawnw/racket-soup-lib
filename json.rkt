@@ -13,9 +13,20 @@
 
 (begin-for-syntax
   (define-syntax-class json-type
-    (pattern (~or* (~literal string) (~literal number) (~literal array) (~literal object) (~literal true) (~literal false) (~literal boolean) (~literal null)))))
+    (pattern (~or* (~literal string) (~literal number) (~literal array) (~literal object) (~literal true) (~literal false) (~literal boolean) (~literal null)))
+    (pattern ((~or* (~literal string) (~literal number) (~literal array) (~literal object) (~literal boolean)) name:id))))
 
 (define-syntax (json-match stx)
+  (define (type-name pat-stx)
+    (let ([pat (syntax-e pat-stx)])
+      (if (pair? pat)
+          (syntax-e (car pat))
+          pat)))
+  (define (compile-clause pred? jsexpr clause)
+    (let ([pat (syntax->list (car clause))])
+      (if pat
+          #`((#,pred? #,jsexpr) (let ([#,(cadr pat) #,jsexpr]) #,@(cdr clause)))
+          #`((#,pred? #,jsexpr) #,@(cdr clause)))))
   (define (compile-clauses jsexpr clauses-stx)
     (let loop ([clauses (syntax->list clauses-stx)]
                [string-clause #f] [number-clause #f] [array-clause #f] [object-clause #f]
@@ -25,26 +36,26 @@
                          (filter values (list string-clause number-clause array-clause object-clause true-clause
                                               false-clause boolean-clause null-clause)))
           (let ([clause (syntax->list (car clauses))])
-            (case (syntax-e (car clause))
+            (case (type-name (car clause))
               ((string)
                (if string-clause
                    (raise-syntax-error 'json-match "duplicate clause" (car clause))
-                   (loop (cdr clauses) #`((string? #,jsexpr) #,@(cdr clause)) number-clause array-clause object-clause true-clause false-clause
+                   (loop (cdr clauses) (compile-clause #'string? jsexpr clause) number-clause array-clause object-clause true-clause false-clause
                          boolean-clause null-clause)))
               ((number)
                (if number-clause
                    (raise-syntax-error 'json-match "duplicate clause" (car clause))
-                   (loop (cdr clauses) string-clause #`((real? #,jsexpr) #,@(cdr clause)) array-clause object-clause true-clause false-clause
+                   (loop (cdr clauses) string-clause (compile-clause #'real? jsexpr clause) array-clause object-clause true-clause false-clause
                          boolean-clause null-clause)))
               ((array)
                (if array-clause
                    (raise-syntax-error 'json-match "duplicate clause" (car clause))
-                   (loop (cdr clauses) string-clause number-clause #`((list? #,jsexpr) #,@(cdr clause)) object-clause true-clause false-clause
+                   (loop (cdr clauses) string-clause number-clause (compile-clause #'list? jsexpr clause) object-clause true-clause false-clause
                          boolean-clause null-clause)))
               ((object)
                (if object-clause
                    (raise-syntax-error 'json-match "duplicate clause" (car clause))
-                   (loop (cdr clauses) string-clause number-clause array-clause #`((hash? #,jsexpr) #,@(cdr clause)) true-clause false-clause
+                   (loop (cdr clauses) string-clause number-clause array-clause (compile-clause #'hash? jsexpr clause) true-clause false-clause
                          boolean-clause null-clause)))
               ((true)
                (cond
@@ -74,7 +85,7 @@
                   (raise-syntax-error 'json-match "can't have both false and boolean clauses" (car clause)))
                  (else
                   (loop (cdr clauses) string-clause number-clause array-clause object-clause true-clause false-clause
-                        #`((boolean? #,jsexpr) #,@(cdr clause)) null-clause))))
+                        (compile-clause #'boolean? jsexpr clause) null-clause))))
               ((null)
                (if null-clause
                    (raise-syntax-error 'json-match "duplicate clause" (car clause))
@@ -85,7 +96,7 @@
   (syntax-parse stx
     #:literals (else)
     ((json-match
-         (~optional (~seq #:unsafe unsafe:boolean) #:defaults [(unsafe #'#f)])
+         (~optional (~and (~datum #:unsafe) (~bind [unsafe #'#t])) #:defaults [(unsafe #'#f)])
        jsexpr:expr
        (type:json-type ex:expr ...+) ...
        (~optional (else else-ex:expr ...+)))
@@ -110,7 +121,7 @@
   (check-true (struct->jsexpr? ex))
   (check-equal? (->jsexpr ex) (hasheq 'foo "apple" 'bar 1))
 
-  (check-equal? (json-match "foo" (number 'num) (string 'str) (boolean 'bool) (else 'other)) 'str)
+  (check-equal? (json-match "foo" (number 'num) ((string s) s) (boolean 'bool) (else 'other)) "foo")
   (check-equal? (json-match #t (number 'num) (string 'str) (boolean 'bool) (else 'other)) 'bool)
   (check-equal? (json-match 1.2 (string 'str) (boolean 'bool) (else 'other)) 'other)
   )
