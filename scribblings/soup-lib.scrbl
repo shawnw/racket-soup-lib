@@ -276,9 +276,10 @@ Tests if an object is a struct that implements the @code{gen:struct->jsexpr} int
 }
 
 @defform[#:literals (string number array object true false boolean null else)
-(json-match jsexpr match-clause ... maybe-else)
+(json-match maybe-unsafe jsexpr match-clause ... maybe-else)
 #:grammar
-[(match-clause
+[(maybe-unsafe (code:line) (code:line #:unsafe #t) (code:line #:unsafe #f))
+ (match-clause
    (code:line (number expr ...+))
    (code:line (string expr ...+))
    (code:line (array expr ...+))
@@ -298,11 +299,12 @@ Tests if an object is a struct that implements the @code{gen:struct->jsexpr} int
 ([jsexpr jsexpr?])
          ]{
 
-Destructuring match on jsexpr values. Only one of each particular value type can be present. If the type of given @code{jsexpr} is not present
+Conditional evaluation based on the type of a jsexpr value. Only one of each particular type can be present. If the type of the given @code{jsexpr} is not present
  and there is no @code{else} clause, an error is raised.
 
-Example:
+If the optional @code{#:unsafe} keyword is @code{#t}, no check is done to make sure @code{jsexpr} is actually a @code{jsexpr?}. It defaults to @code{#f}.
 
+Example:
 
 @codeblock{
            (json-match "foo"
