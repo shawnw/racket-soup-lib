@@ -338,6 +338,7 @@ Example:
  Define a parameter with the given name and value.
 
  The optional @code{guard} and @code{name} arguments are as in @code{make-parameter}.
+ The default name is @code{id} instead of @code{'parameter-procedure}, though.
 
 }
 
@@ -351,6 +352,6 @@ Example:
  Define a boolean parameter with the given name. The default initial value if not given is @code{#t}. Any value can be used to set the parameter,
  but it's converted to a boolean; in other words it's compatible with the contract @code{(parameter/c any/c boolean?)}.
 
- The optional @code{name} argument is as in @code{make-parameter}.
+ The optional @code{name} argument is as in @code{make-parameter}. The default name is @code{id} instead of @code{'parameter-procedure}, though.
 
 }
