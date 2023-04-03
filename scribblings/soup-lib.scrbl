@@ -69,7 +69,7 @@ Provides all the functions exported by the modules below.
 @code{body ...} must evaluate to a single character at each iteration, all of which are returned as a string.
 
  The optional @code{#:length} argument can be used to give the expected length of the result as an optimization.
- 
+
 }
 
 @defform[(for/bytes [#:length exact-positive-integer?] (sequences) body ...+)]{
@@ -85,7 +85,7 @@ Provides all the functions exported by the modules below.
 @code{body ...} must evaluate to a single byte at each iteration, all of which are returned as a bytestring.
 
  The optional @code{#:length} argument can be used to give the expected length of the result as an optimization.
- 
+
 }
 
 @section{Hash Table functions}
@@ -241,6 +241,14 @@ Sometimes with better names.
 @defproc[(string-sort! [s (and/c string? (not/c immutable?))] [<? (-> char? char? any/c) char<?]) void?]{
 
  Sorts @code{s} in-place.
+
+}
+
+@defproc[(string-escape [s string?] [mapper (or/c dict? (-> char? (or/c string? #f)))] [start exact-nonnegative-integer? 0] [stop exact-nonnegative-integer? (string-length s)])
+         string?]{
+
+Inspired by @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#escape-string-table-key-start-end-stream"]{serapeum's @code{escape}}, replaces
+characters in @code{s} with the string that they map to in the dictionary @code{mapper} (Or what it returns if a function).
 
 }
 

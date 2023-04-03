@@ -1,6 +1,7 @@
 #lang racket/base
 
-(require racket/contract racket/unsafe/ops racket/vector)
+(require racket/contract racket/dict racket/unsafe/ops racket/string racket/vector
+         "for.rkt")
 (module+ test (require rackunit))
 
 (provide
@@ -10,6 +11,7 @@
   [string-join/vector (->* ((vectorof string?)) (string?) string?)]
   [string-sort (->* (string?) ((-> char? char? any/c)) string?)]
   [string-sort! (->* ((and/c string? (not/c immutable?))) ((-> char? char? any/c)) void?)]
+  [string-escape (->* (string? (or/c dict? (-> char? (or/c string? #f)))) (exact-nonnegative-integer? exact-nonnegative-integer?) string?)]
   ))
 
 ; (-> (and/c string? (not/c immutable?)) fixnum? string? (values string? fixnum?))
@@ -49,6 +51,13 @@
     (for ([i (in-range (unsafe-string-length s))])
       (unsafe-string-set! s i (unsafe-vector-ref v i)))))
 
+(define (string-escape str escape-map [start 0] [stop (string-length str)])
+  (if (procedure? escape-map)
+      (for*/string ([ch (in-string str start stop)]
+                    #:do [(define replacement (escape-map ch))]
+                    [r (if (string? replacement) (in-string replacement) (in-value ch))])
+        r)
+      (string-escape str (lambda (ch) (dict-ref escape-map ch #f)) start stop)))
 
 (module+ test
   (check-equal? (string-join/vector #("a" "b" "c")) "a b c")
@@ -59,4 +68,6 @@
   (define s (string-copy "defab"))
   (string-sort! s)
   (check-equal? s "abdef")
+  (check-equal? (string-escape "foo\tbar" '((#\tab . "\\t"))) "foo\\tbar")
+  (check-equal? (string-escape "foo\tbar" (lambda (ch) (if (char=? ch #\tab) "\\t" #f))) "foo\\tbar")
   )
