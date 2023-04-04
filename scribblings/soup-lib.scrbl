@@ -210,6 +210,12 @@ Sometimes with better names.
 
 }
 
+@defproc[(pairlis [keys list?] [values list?] [alist any/c '()]) any/c]{
+
+ See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_pairli.htm"]{Common Lisp @racket{pairlis}}.
+
+}
+
 @section{String functions}
 
 @defmodule[soup-lib/string]
