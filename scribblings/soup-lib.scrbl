@@ -148,7 +148,7 @@ Provides all the functions exported by the modules below.
 @subsection{Common Lisp functions}
 
 Stuff from the @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/c_conses.htm"]{cons dictionary} without Racket or SRFI-1 equivalents.
-Sometimes with better names.
+Sometimes with better names, as well as the @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md"]{serapeum library}.
 
 @defproc[(sublis [alist (listof pair?)] [tree any/c] [#:key key (-> any/c any/c) identity] [#:test test (-> any/c any/c any/c) eqv?]) any/c]{
 
@@ -213,6 +213,12 @@ Sometimes with better names.
 @defproc[(pairlis [keys list?] [values list?] [alist any/c '()]) any/c]{
 
  See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_pairli.htm"]{Common Lisp @racket{pairlis}}.
+
+}
+
+@defproc[(reuse-cons [x any/c] [y any/c] [x-y pair?]) pair?]{
+
+ See @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#reuse-cons-x-y-x-y"]{serapeum @racket{reuse-cons}}.
 
 }
 

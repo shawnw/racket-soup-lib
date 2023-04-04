@@ -25,7 +25,7 @@
   [ldiff (-> (or/c pair? null?) any/c (or/c pair? null?))]
   [rassoc (->* (any/c (listof pair?)) (#:key (-> any/c any/c) #:test (-> any/c any/c any/c)) (or/c pair? #f))]
   [rassoc-if (->* ((-> any/c any/c) (listof pair?)) (#:key (-> any/c any/c)) (or/c pair? #f))]
-
+  [reuse-cons (-> any/c any/c pair? pair?)]
   ))
 
 (define (any-null? lol) (ormap null? lol))
@@ -54,7 +54,7 @@
 
 (define (adjoin elem lst #:key [key identity] #:test [test eqv?])
   (cond
-    ((null? list)
+    ((null? lst)
      (list elem))
     ((memf (lambda (x) (test elem (key x))) lst)
      lst)
@@ -69,10 +69,7 @@
     ((pair? tree)
      (let ([new-car (sublis alist (car tree) #:test test #:key key)]
            [new-cdr (sublis alist (cdr tree) #:test test #:key key)])
-       (if (and (eqv? (car tree) new-car)
-                (eqv? (cdr tree) new-cdr))
-           tree
-           (cons new-car new-cdr))))
+       (reuse-cons new-car new-cdr tree)))
     (else tree)))
 
 (define (subst new old tree #:test [test eqv?] #:key [key identity])
@@ -81,10 +78,7 @@
     ((pair? tree)
      (let ([new-car (subst new old (car tree) #:test test #:key key)]
            [new-cdr (subst new old (cdr tree) #:test test #:key key)])
-       (if (and (eqv? (car tree) new-car)
-                (eqv? (cdr tree) new-cdr))
-           tree
-           (cons new-car new-cdr))))
+       (reuse-cons new-car new-cdr tree)))
     (else tree)))
 
 (define (subst-if new pred? tree #:key [key identity])
@@ -93,12 +87,9 @@
     ((pair? tree)
      (let ([new-car (subst-if new pred? (car tree) #:key key)]
            [new-cdr (subst-if new pred? (cdr tree) #:key key)])
-       (if (and (eqv? (car tree) new-car)
-                (eqv? (cdr tree) new-cdr))
-           tree
-           (cons new-car new-cdr))))
+       (reuse-cons new-car new-cdr tree)))
     (else tree)))
-             
+
 (define (tail? obj list)
   (let loop ([tail list])
     (cond
@@ -127,6 +118,11 @@
     ((pred? (key (cdar alist))) (car alist))
     (else (rassoc-if pred? (cdr alist) #:key key))))
 
+(define (reuse-cons x y x-y)
+  (if (and (eqv? x (car x-y))
+           (eqv? y (cdr x-y)))
+      x-y
+      (cons x y)))
 
 (define (lmin list [< <])
   (foldl (lambda (elem curr-min)
@@ -181,7 +177,7 @@
 
   (define tree1 '(1 (1 2) ((1 2 3)) (((1 2 3 4)))))
   (define tree2 '("one" ("one" "two") (("one" "Two" "three"))))
-  
+
   (check-equal?
    (sublis '((x . 100) (z . zprime))
            '(plus x (minus g z x p) 4 . x))
@@ -236,7 +232,7 @@
   (check-false (tail? '() list2))
   (check-true (tail? 'd list2))
   (check-false (tail? 'x list2))
-  
+
   (check-equal? (ldiff list1 list1) '())
   (check-equal? (ldiff list1 (cddr list1)) '(a b))
   (check-equal? (ldiff list1 '(c)) '(a b c))
