@@ -148,7 +148,7 @@ Provides all the functions exported by the modules below.
 @subsection{Common Lisp functions}
 
 Stuff from the @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/c_conses.htm"]{cons dictionary} without Racket or SRFI-1 equivalents.
-Sometimes with better names, as well as the @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md"]{serapeum library}.
+as well as the @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md"]{Serapeum library} and others. Sometimes with better names.
 
 @defproc[(sublis [alist (listof pair?)] [tree any/c] [#:key key (-> any/c any/c) identity] [#:test test (-> any/c any/c any/c) eqv?]) any/c]{
 
@@ -218,7 +218,21 @@ Sometimes with better names, as well as the @hyperlink["https://github.com/ruric
 
 @defproc[(reuse-cons [x any/c] [y any/c] [x-y pair?]) pair?]{
 
- See @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#reuse-cons-x-y-x-y"]{serapeum @racket{reuse-cons}}.
+ See @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#reuse-cons-x-y-x-y"]{Serapeum @racket{reuse-cons}}.
+
+}
+
+@defform[(collecting form ...)]{
+
+ The classic Lisp @racket{collecting} macro. Executes the forms and returns a list made up of the values passed to @code{collect} in it.
+
+}
+
+@defproc*[([(collect) list?]
+           [(collect [value any/c] ...+) void?])]{
+
+ Only usable inside @code{collecting}; appends the values to that macros' result list. When called without any arguments, returns a list of the
+ currently collected values.
 
 }
 
@@ -259,7 +273,7 @@ Sometimes with better names, as well as the @hyperlink["https://github.com/ruric
 @defproc[(string-escape [s string?] [mapper (or/c dict? (-> char? (or/c string? #f)))] [start exact-nonnegative-integer? 0] [stop exact-nonnegative-integer? (string-length s)])
          string?]{
 
-Inspired by @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#escape-string-table-key-start-end-stream"]{serapeum's @code{escape}}, replaces
+Inspired by @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#escape-string-table-key-start-end-stream"]{Serapeum's @racket{escape}}, replaces
 characters in @code{s} with the string that they map to in the dictionary @code{mapper} (Or what it returns if a function).
 
 }

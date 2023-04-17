@@ -1,8 +1,11 @@
 #lang racket/base
 
-(require racket/contract racket/function racket/list racket/sequence (only-in srfi/1 append-reverse) srfi/141)
+(require racket/contract racket/function racket/list racket/sequence racket/stxparam
+         (only-in srfi/1 append-reverse) data/queue srfi/141
+         (for-syntax racket/base))
 (module+ test (require rackunit))
 (provide
+ collect collecting
  (contract-out
   [lmin (->* ((and/c list? (not/c null?))) ((-> any/c any/c any/c)) any/c)]
   [lmax (->* ((and/c list? (not/c null?))) ((-> any/c any/c any/c)) any/c)]
@@ -146,6 +149,19 @@
 (define (chunk list n)
   (slice list (ceiling-quotient (length list) n)))
 
+(define-syntax-parameter collect
+  (lambda (stx) (raise-syntax-error 'collect "Can't use collect outside of collecting" stx)))
+
+(define-syntax-rule (collecting body ...)
+  (let* ([res (make-queue)]
+         [%collect (lambda elems
+                     (if (null? elems)
+                         (queue->list res)
+                         (for-each (curry enqueue! res) elems)))])
+    (syntax-parameterize ([collect (make-rename-transformer #'%collect)])
+      ((lambda () body ...))
+      (queue->list res))))
+
 (module+ test
   (check-equal? (lmax '(1 2 3 4 5)) 5)
   (check-equal? (lmax '("a" "z" "b") string<?) "z")
@@ -255,4 +271,7 @@
   (check-equal? (rassoc 1 alist #:key (lambda (x) (if (number? x) (/ x 3) #f))) '(3 . 3))
   (check-equal? (rassoc 'a '((a . b) (b . c) (c . a) (z . a))) '(c . a))
   (check-equal? (rassoc-if string? alist) '(1 . "one"))
+
+  (check-equal? (collecting (for ([n (in-range 2 100)]) (unless (findf (lambda (d) (= (remainder n d) 0)) (collect)) (collect n))))
+                '(2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97))
   )
