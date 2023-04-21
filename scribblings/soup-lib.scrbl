@@ -389,9 +389,3 @@ Example:
  The optional @code{name} argument is as in @code{make-parameter}. The default name is @code{id} instead of @code{'parameter-procedure}, though.
 
 }
-
-@defform[(parameterize* ([parameter value] ...) body ...)]{
-
- Has the same relationship to @code{parameterize} that @code{let*} has to @code{let} - each value expression can see the new values of the preceding parameters.
-
-}
