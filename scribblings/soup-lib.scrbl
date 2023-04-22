@@ -58,7 +58,7 @@ Provides all the functions exported by the modules below.
 
 @defform[(for/string [#:length exact-positive-integer?] (sequences) body ...+)]{
 
-@code{body ...} must evaluate to a single character at each iteration, all of which are returned as a string.
+@code{body ...} must evaluate to a string or character at each iteration, all of which are returned as a single string.
 
  The optional @code{#:length} argument can be used to give the expected length of the result as an optimization.
 
@@ -66,7 +66,7 @@ Provides all the functions exported by the modules below.
 
 @defform[(for*/string [#:length exact-positive-integer?] (sequences) body ...+)]{
 
-@code{body ...} must evaluate to a single character at each iteration, all of which are returned as a string.
+@code{body ...} must evaluate to a string or character at each iteration, all of which are returned as a single string.
 
  The optional @code{#:length} argument can be used to give the expected length of the result as an optimization.
 

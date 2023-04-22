@@ -6,7 +6,6 @@
 (provide for/string for*/string for/bytes for*/bytes for/max for*/max for/min for*/min)
 
 (define-syntax-parse-rule (for/string (~optional (~seq #:length slen:expr)) clauses body ... tail-expr)
-  #:with original this-syntax
   #:with ((pre-body ...) (post-body ...)) (split-for-body this-syntax #'(body ... tail-expr))
   #:with rlen #'(~? slen 32)
   (begin
@@ -19,19 +18,33 @@
       clauses
       pre-body ...
       (let ([ch (let () post-body ...)])
-        (unless (char? ch)
-          (raise-arguments-error 'for/string "body must return a character" "value" ch))
-        (if (unsafe-fx< n len)
-            (begin
+        (cond
+          ((char? ch)
+           (cond
+             ((unsafe-fx< n len)
               (unsafe-string-set! chars n ch)
               (values chars len (unsafe-fx+ n 1)))
-            (let ([new-chars (make-string (fl->fx (* len 1.5)))])
-              (string-copy! new-chars 0 chars)
-              (unsafe-string-set! new-chars n ch)
-              (values new-chars (unsafe-string-length new-chars) (unsafe-fx+ n 1))))))))
+             (else
+              (let ([new-chars (make-string (fl->fx (* len 1.5)))])
+                (string-copy! new-chars 0 chars)
+                (unsafe-string-set! new-chars n ch)
+                (values new-chars (unsafe-string-length new-chars) (unsafe-fx+ n 1))))))
+          ((string? ch)
+           (let ([xlen (unsafe-string-length ch)])
+             (cond
+               ((unsafe-fx< (unsafe-fx+ n xlen) len)
+                (string-copy! chars n ch)
+                (values chars len (unsafe-fx+ n xlen)))
+               (else
+                (let ([new-chars (make-string (unsafe-fx+ (fl->fx (* len 1.5)) xlen))])
+                  (string-copy! new-chars 0 chars)
+                  (string-copy! new-chars n ch)
+                  (values new-chars (unsafe-string-length new-chars) (unsafe-fx+ n xlen)))))))
+          (else
+           (raise-arguments-error 'for/string "body must return a string or character" "value" ch)))))))
+
 
 (define-syntax-parse-rule (for*/string (~optional (~seq #:length slen:expr)) clauses body ... tail-expr)
-  #:with original this-syntax
   #:with ((pre-body ...) (post-body ...)) (split-for-body this-syntax #'(body ... tail-expr))
   #:with rlen #'(~? slen 32)
   (begin
@@ -44,16 +57,30 @@
       clauses
       pre-body ...
       (let ([ch (let () post-body ...)])
-        (unless (char? ch)
-          (raise-arguments-error 'for*/string "body must return a character" "value" ch))
-        (if (unsafe-fx< n len)
-            (begin
+        (cond
+          ((char? ch)
+           (cond
+             ((unsafe-fx< n len)
               (unsafe-string-set! chars n ch)
               (values chars len (unsafe-fx+ n 1)))
-            (let ([new-chars (make-string (fl->fx (* len 1.5)))])
-              (string-copy! new-chars 0 chars)
-              (unsafe-string-set! new-chars n ch)
-              (values new-chars (unsafe-string-length new-chars) (unsafe-fx+ n 1))))))))
+             (else
+              (let ([new-chars (make-string (fl->fx (* len 1.5)))])
+                (string-copy! new-chars 0 chars)
+                (unsafe-string-set! new-chars n ch)
+                (values new-chars (unsafe-string-length new-chars) (unsafe-fx+ n 1))))))
+          ((string? ch)
+           (let ([xlen (unsafe-string-length ch)])
+             (cond
+               ((unsafe-fx< (unsafe-fx+ n xlen) len)
+                (string-copy! chars n ch)
+                (values chars len (unsafe-fx+ n xlen)))
+               (else
+                (let ([new-chars (make-string (unsafe-fx+ (fl->fx (* len 1.5)) xlen))])
+                  (string-copy! new-chars 0 chars)
+                  (string-copy! new-chars n ch)
+                  (values new-chars (unsafe-string-length new-chars) (unsafe-fx+ n xlen)))))))
+          (else
+           (raise-arguments-error 'for*/string "body must return a string or character" "value" ch)))))))
 
 (define-syntax-parse-rule (for/bytes (~optional (~seq #:length slen:expr)) clauses body ... tail-expr)
   #:with original this-syntax
@@ -144,6 +171,7 @@
 (module+ test
   (check-equal? (for/string ([ch (in-list '(#\a #\b #\c #\d))]) ch) "abcd")
   (check-equal? (for/string #:length (string-length "abcd") ([ch (in-list '(#\a #\b #\c #\d))]) (char-upcase ch)) "ABCD")
+  (check-equal? (for/string ([i (in-range 3)]) "AA") "AAAAAA")
   (check-equal? (for/bytes ([ch (in-list '(#\a #\b #\c #\d))]) (char->integer ch)) #"abcd")
   (check-equal? (for/bytes #:length 4 ([ch (in-list '(#\a #\b #\c #\d))]) (char->integer (char-upcase ch))) #"ABCD")
 
