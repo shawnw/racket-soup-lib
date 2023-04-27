@@ -35,7 +35,7 @@
       (string-append! buffer end-idx (unsafe-vector-ref vs n)))))
 
 (define (string->vector s)
-  (build-vector (unsafe-string-length s) (lambda (i) (unsafe-string-ref s i))))
+  (build-vector (unsafe-string-length s) (lambda (i) (string-ref s i))))
 
 (define (vector->string vc)
   (build-string (unsafe-vector-length vc) (lambda (i) (unsafe-vector-ref vc i))))
