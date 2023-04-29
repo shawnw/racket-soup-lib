@@ -1,6 +1,6 @@
 #lang racket/base
 
-(require racket/contract racket/function racket/list racket/sequence racket/stxparam
+(require racket/contract racket/function racket/list racket/sequence racket/stxparam racket/unsafe/ops
          (only-in srfi/1 append-reverse) data/queue srfi/141
          (for-syntax racket/base))
 (module+ test (require rackunit))
@@ -29,6 +29,7 @@
   [rassoc (->* (any/c (listof pair?)) (#:key (-> any/c any/c) #:test (-> any/c any/c any/c)) (or/c pair? #f))]
   [rassoc-if (->* ((-> any/c any/c) (listof pair?)) (#:key (-> any/c any/c)) (or/c pair? #f))]
   [reuse-cons (-> any/c any/c pair? pair?)]
+  [copy-tree (-> any/c any/c)]
   ))
 
 (define (any-null? lol) (ormap null? lol))
@@ -126,6 +127,11 @@
            (eqv? y (cdr x-y)))
       x-y
       (cons x y)))
+
+(define (copy-tree tree)
+  (if (pair? tree)
+      (cons (copy-tree (unsafe-car tree)) (copy-tree (unsafe-cdr tree)))
+      tree))
 
 (define (lmin list [< <])
   (foldl (lambda (elem curr-min)
@@ -271,6 +277,15 @@
   (check-equal? (rassoc 1 alist #:key (lambda (x) (if (number? x) (/ x 3) #f))) '(3 . 3))
   (check-equal? (rassoc 'a '((a . b) (b . c) (c . a) (z . a))) '(c . a))
   (check-equal? (rassoc-if string? alist) '(1 . "one"))
+
+  (define object (list (cons 1 "one")
+                       (cons 2 (list 'a 'b 'c))))
+  (define copy-as-tree (copy-tree object))
+
+  (check-true (eq? object object-too))
+  (check-false (eq? copy-as-tree object))
+  (check-false (eqv? copy-as-tree object))
+  (check-true (equal? copy-as-tree object))
 
   (check-equal? (collecting (for ([n (in-range 2 100)]) (unless (findf (lambda (d) (= (remainder n d) 0)) (collect)) (collect n))))
                 '(2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97))

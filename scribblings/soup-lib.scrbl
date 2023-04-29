@@ -216,6 +216,12 @@ as well as the @hyperlink["https://github.com/ruricolist/serapeum/blob/master/RE
 
 }
 
+@defproc[(copy-tree [tree any/c]) any/c]{
+
+ See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_cp_tre.htm"]{Common Lisp @racket{copy-tree}}.
+
+}
+
 @defproc[(reuse-cons [x any/c] [y any/c] [x-y pair?]) pair?]{
 
  See @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#reuse-cons-x-y-x-y"]{Serapeum @racket{reuse-cons}}.
