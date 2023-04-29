@@ -1,13 +1,12 @@
 #lang scribble/manual
 @require[@for-label[soup-lib
-                    racket/base racket/contract racket/function json]]
+                    racket/base racket/contract racket/control racket/function racket/undefined
+                    json]]
 
 @title{Soup: A library of useful routines}
 @author[@author+email["Shawn Wagner" "shawnw.mobile@gmail.com"]]
 
 A collection of useful functions not important enough to spin off into their own packages.
-
-@table-of-contents[]
 
 @section{Top level interface}
 
@@ -246,6 +245,102 @@ as well as the @hyperlink["https://github.com/ruricolist/serapeum/blob/master/RE
  Only usable inside @code{collecting}; appends the values to that macros' result list. When called without any arguments, returns a list of the
  currently collected values.
 
+}
+
+@section{Tree functions}
+
+Functions for working on trees made of @code{cons} cells; mostly taken from Common Lisp. A few of these functions are also provided by @code{soup-lib/list}.
+
+@defmodule[soup-lib/tree]
+
+@defproc[(copy-tree [tree any/c]) any/c]{
+
+ See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_cp_tre.htm"]{Common Lisp @racket{copy-tree}}.
+
+}
+
+@defproc[(tree-equal? [tree1 any/c] [tree2 any/c] [#:test test (-> any/c any/c any/c) eqv?]) boolean?]{
+
+ See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_tree_e.htm"]{Common Lisp @racket{tree-equal}}.
+
+}
+
+@defproc[(subst [new any/c] [old any/c] [tree any/c] [#:key key (-> any/c any/c) identity] [#:test test (-> any/c any/c any/c) eqv?]) any/c]{
+
+ See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_substc.htm"]{Common Lisp @racket{subst}}.
+
+}
+
+@defproc[(subst-if [new any/c] [pred? (-> any/c any/c)] [tree any/c] [#:key key (-> any/c any/c) identity]) any/c]{
+
+ See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_substc.htm"]{Common Lisp @racket{subst-if}}.
+
+}
+
+@defproc[(walk-tree [fun (-> any/c any)] [tree any/c] [#:tag tag continuation-prompt-tag? (default-continuation-prompt-tag)]
+                    [#:traversal traversal (or/c 'preorder 'inorder 'postorder) 'preorder]) void?]{
+
+ From @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#walk-tree-fun-tree-key-tag-traversal"]{Serapheum}.
+
+ Call @code{fun} in turn over each atom and cons of @code{tree}.
+
+ @code{fun} can skip the current subtree with @code{(abort/cc tag)}.
+
+ }
+
+@defproc[(map-tree [fun (-> any/c any/c)] [tree any/c] [#:tag tag continuation-prompt-tag? (default-continuation-prompt-tag)]
+                   [#:traversal traversal (or/c 'preorder 'inorder 'postorder) 'preorder]) any/c]{
+
+ From @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#map-tree-fun-tree-key-tag-traversal"]{Serapheum}.
+
+ Walk @code{fun} over @code{tree} and build a tree from the results.
+
+The new tree may share structure with the old tree.
+
+@codeblock{
+  (eq? tree (map-tree identity tree)) ; #t
+ }
+
+@code{fun} can skip the current subtree with @code{(abort/cc tag subtree)}, in which case @code{subtree} will be used as the value of the subtree.
+
+}
+
+@defproc[(leaf-walk [fun (-> any/c any)] [tree any/c]) void?]{
+
+ From @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#leaf-walk-fun-tree"]{Serapheum}.
+
+ Call @code{fun} on each leaf of @code{tree}.
+
+}
+
+@defproc[(leaf-map [fun (-> any/c any/c)] [tree any/c]) any/c]{
+
+ From @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#leaf-map-fn-tree"]{Serapheum}.
+
+ Call @code{fun} on each leaf of @code{tree}. Return a new tree possibly sharing structure with @code{tree}.
+
+}
+
+@defproc[(occurs-if [test (-> any/c any/c)] [tree any/c] [#:key key (-> any/c any/c) identity]
+                     [#:traversal traversal (or/c 'preorder 'inorder 'postorder) 'preorder]) (values any/c boolean?)]{
+
+From @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#occurs-if-test-tree-key-key-traversal"]{Serapheum}.
+
+Is there a node (leaf or cons) in @code{tree} that satisfies @code{test}?
+
+ Returns two values - the node that matched (Or @code{undefined} if none did) and a boolean indicating if the node was found or not.
+
+}
+
+@defproc[(occurs [node any/c] [tree any/c] [#:key key (-> any/c any/c) identity] [#:test test (-> any/c any/c any/c) eqv?]
+                 [#:traversal traversal (or/c 'preorder 'inorder 'postorder) 'preorder]) (values any/c boolean?)]{
+
+ From @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#occurs-node-tree-key-key-test-traversal"]{Serapheum}.
+
+ Is @code{node} present in @code{tree}?
+
+ Returns two values - the node that matched (Or @code{undefined} if none did) and a boolean indicating if the node was found or not.
+ 
 }
 
 @section{String functions}
