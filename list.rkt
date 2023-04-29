@@ -39,7 +39,7 @@
 
 (define (maplist proc . lists)
   (if (= (length lists) 1)
-      (maplist-1 proc (car lists)) ; Fast track
+      (maplist-1 proc (unsafe-car lists)) ; Fast track
       (maplists proc lists)))
 
 (define (maplist-1 proc list)
@@ -54,7 +54,7 @@
 
 (define (append-maplist proc . lists)
   (if (= (length lists) 1)
-      (append* (maplist-1 proc (car lists))) ; Fast track
+      (append* (maplist-1 proc (unsafe-car lists))) ; Fast track
       (append* (maplists proc lists))))
 
 (define (adjoin elem lst #:key [key identity] #:test [test eqv?])
@@ -72,8 +72,8 @@
   (cond
     ((assoc (key tree) alist test) => cdr)
     ((pair? tree)
-     (let ([new-car (sublis alist (car tree) #:test test #:key key)]
-           [new-cdr (sublis alist (cdr tree) #:test test #:key key)])
+     (let ([new-car (sublis alist (unsafe-car tree) #:test test #:key key)]
+           [new-cdr (sublis alist (unsafe-cdr tree) #:test test #:key key)])
        (reuse-cons new-car new-cdr tree)))
     (else tree)))
 
@@ -81,8 +81,8 @@
   (cond
     ((test old (key tree)) new)
     ((pair? tree)
-     (let ([new-car (subst new old (car tree) #:test test #:key key)]
-           [new-cdr (subst new old (cdr tree) #:test test #:key key)])
+     (let ([new-car (subst new old (unsafe-car tree) #:test test #:key key)]
+           [new-cdr (subst new old (unsafe-cdr tree) #:test test #:key key)])
        (reuse-cons new-car new-cdr tree)))
     (else tree)))
 
@@ -90,8 +90,8 @@
   (cond
     ((pred? (key tree)) new)
     ((pair? tree)
-     (let ([new-car (subst-if new pred? (car tree) #:key key)]
-           [new-cdr (subst-if new pred? (cdr tree) #:key key)])
+     (let ([new-car (subst-if new pred? (unsafe-car tree) #:key key)]
+           [new-cdr (subst-if new pred? (unsafe-cdr tree) #:key key)])
        (reuse-cons new-car new-cdr tree)))
     (else tree)))
 
@@ -99,7 +99,7 @@
   (let loop ([tail list])
     (cond
       ((eqv? obj tail) #t)
-      ((pair? tail) (loop (cdr tail)))
+      ((pair? tail) (loop (unsafe-cdr tail)))
       (else #f))))
 
 (define (ldiff list obj)
@@ -107,7 +107,7 @@
              [res '()])
     (cond
       ((eqv? obj tail) (reverse res))
-      ((pair? tail) (loop (cdr tail) (cons (car tail) res)))
+      ((pair? tail) (loop (unsafe-cdr tail) (cons (unsafe-car tail) res)))
       ((null? tail) (reverse res))
       (else (append-reverse res tail)))))
 
