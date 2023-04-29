@@ -30,6 +30,7 @@
   [rassoc-if (->* ((-> any/c any/c) (listof pair?)) (#:key (-> any/c any/c)) (or/c pair? #f))]
   [reuse-cons (-> any/c any/c pair? pair?)]
   [copy-tree (-> any/c any/c)]
+  [tree-equal? (->* (any/c any/c) (#:test (-> any/c any/c any/c)) boolean?)]
   ))
 
 (define (any-null? lol) (ormap null? lol))
@@ -132,6 +133,14 @@
   (if (pair? tree)
       (cons (copy-tree (unsafe-car tree)) (copy-tree (unsafe-cdr tree)))
       tree))
+
+(define (tree-equal? tree1 tree2 #:test [test eqv?])
+  (cond
+    ((and (pair? tree1) (pair? tree2))
+     (and (tree-equal? (unsafe-car tree1) (unsafe-car tree2) #:test test)
+          (tree-equal? (unsafe-cdr tree1) (unsafe-cdr tree2) #:test test)))
+    ((or (pair? tree1) (pair? tree2)) #f)
+    (else (test tree1 tree2))))
 
 (define (lmin list [< <])
   (foldl (lambda (elem curr-min)
@@ -278,11 +287,13 @@
   (check-equal? (rassoc 'a '((a . b) (b . c) (c . a) (z . a))) '(c . a))
   (check-equal? (rassoc-if string? alist) '(1 . "one"))
 
+  (check-true (tree-equal? '(1 (1 2)) '(1 (1 2))))
+  (check-true (tree-equal? '('a ('b 'c)) '('a ('b 'c)) #:test eq?))
+
   (define object (list (cons 1 "one")
                        (cons 2 (list 'a 'b 'c))))
   (define copy-as-tree (copy-tree object))
 
-  (check-true (eq? object object-too))
   (check-false (eq? copy-as-tree object))
   (check-false (eqv? copy-as-tree object))
   (check-true (equal? copy-as-tree object))

@@ -222,6 +222,12 @@ as well as the @hyperlink["https://github.com/ruricolist/serapeum/blob/master/RE
 
 }
 
+@defproc[(tree-equal? [tree1 any/c] [tree2 any/c] [#:test test (-> any/c any/c any/c) eqv?]) boolean?]{
+
+ See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_tree_e.htm"]{Common Lisp @racket{tree-equal}}.
+
+}
+
 @defproc[(reuse-cons [x any/c] [y any/c] [x-y pair?]) pair?]{
 
  See @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#reuse-cons-x-y-x-y"]{Serapeum @racket{reuse-cons}}.
