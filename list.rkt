@@ -31,6 +31,8 @@
   [reuse-cons (-> any/c any/c pair? pair?)]
   [copy-tree (-> any/c any/c)]
   [tree-equal? (->* (any/c any/c) (#:test (-> any/c any/c any/c)) boolean?)]
+  [alist-map (-> (-> any/c any/c any/c) (listof pair?) (listof pair?))]
+  [alist-for-each (-> (-> any/c any/c any) (listof pair?) void?)]
   ))
 
 (define (any-null? lol) (ormap null? lol))
@@ -176,6 +178,14 @@
     (syntax-parameterize ([collect (make-rename-transformer #'%collect)])
       ((lambda () body ...))
       (queue->list res))))
+
+(define (alist-map proc alist)
+  (for/list ([elem (in-list alist)])
+    (cons (car elem) (proc (car elem) (cdr elem)))))
+
+(define (alist-for-each proc alist)
+  (for ([elem (in-list alist)])
+    (proc (car elem) (cdr elem))))
 
 (module+ test
   (check-equal? (lmax '(1 2 3 4 5)) 5)

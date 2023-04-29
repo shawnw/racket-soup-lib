@@ -149,12 +149,6 @@ Provides all the functions exported by the modules below.
 Stuff from the @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/c_conses.htm"]{cons dictionary} without Racket or SRFI-1 equivalents.
 as well as the @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md"]{Serapeum library} and others. Sometimes with better names.
 
-@defproc[(sublis [alist (listof pair?)] [tree any/c] [#:key key (-> any/c any/c) identity] [#:test test (-> any/c any/c any/c) eqv?]) any/c]{
-
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_sublis.htm"]{Common Lisp @racket{sublis}}.
-
-}
-
 @defproc[(subst [new any/c] [old any/c] [tree any/c] [#:key key (-> any/c any/c) identity] [#:test test (-> any/c any/c any/c) eqv?]) any/c]{
 
  See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_substc.htm"]{Common Lisp @racket{subst}}.
@@ -197,24 +191,6 @@ as well as the @hyperlink["https://github.com/ruricolist/serapeum/blob/master/RE
 
 }
 
-@defproc[(rassoc [item any/c] [alist (listof pair?)] [#:key key (-> any/c any/c) identity] [#:test test (-> any/c any/c any/c) eqv?]) (or/c pair? #f)]{
-
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_rassoc.htm"]{Common Lisp @racket{rassoc}}.
-
-}
-
-@defproc[(rassoc-if [pred? (-> any/c any/c)] [alist (listof pair?)] [#:key key (-> any/c any/c) identity]) (or/c pair? #f)]{
-
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_rassoc.htm"]{Common Lisp @racket{rassoc-if}}.
-
-}
-
-@defproc[(pairlis [keys list?] [values list?] [alist any/c '()]) any/c]{
-
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_pairli.htm"]{Common Lisp @racket{pairlis}}.
-
-}
-
 @defproc[(copy-tree [tree any/c]) any/c]{
 
  See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_cp_tre.htm"]{Common Lisp @racket{copy-tree}}.
@@ -244,6 +220,49 @@ as well as the @hyperlink["https://github.com/ruricolist/serapeum/blob/master/RE
 
  Only usable inside @code{collecting}; appends the values to that macros' result list. When called without any arguments, returns a list of the
  currently collected values.
+
+}
+
+@subsection{Association List functions}
+
+@defproc[(sublis [alist (listof pair?)] [tree any/c] [#:key key (-> any/c any/c) identity] [#:test test (-> any/c any/c any/c) eqv?]) any/c]{
+
+ See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_sublis.htm"]{Common Lisp @racket{sublis}}.
+
+}
+
+@defproc[(rassoc [item any/c] [alist (listof pair?)] [#:key key (-> any/c any/c) identity] [#:test test (-> any/c any/c any/c) eqv?]) (or/c pair? #f)]{
+
+ See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_rassoc.htm"]{Common Lisp @racket{rassoc}}.
+
+}
+
+@defproc[(rassoc-if [pred? (-> any/c any/c)] [alist (listof pair?)] [#:key key (-> any/c any/c) identity]) (or/c pair? #f)]{
+
+ See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_rassoc.htm"]{Common Lisp @racket{rassoc-if}}.
+
+}
+
+@defproc[(pairlis [keys list?] [values list?] [alist any/c '()]) any/c]{
+
+ See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_pairli.htm"]{Common Lisp @racket{pairlis}}.
+
+}
+
+@defproc[(alist-map [proc (-> any/c any/c any/c)] [alist (listof pair?)]) (listof pair?)]{
+
+ From the @hyperlink["https://people.csail.mit.edu/jaffer/slib/Association-Lists.html"]{SLIB association list library}.
+
+ Returns a new association list formed by mapping @code{proc} over the keys and values of @code{alist}. @code{proc} must be a function of 2 arguments which returns
+ the new value part.
+
+}
+
+@defproc[(alist-for-each [proc (-> any/c any/c any)] [alist (listof pair?)]) void?]{
+
+ From the @hyperlink["https://people.csail.mit.edu/jaffer/slib/Association-Lists.html"]{SLIB association list library}.
+
+ Applies @code{proc} to each pair of keys and values of @code{alist}.
 
 }
 
@@ -340,7 +359,7 @@ Is there a node (leaf or cons) in @code{tree} that satisfies @code{test}?
  Is @code{node} present in @code{tree}?
 
  Returns two values - the node that matched (Or @code{undefined} if none did) and a boolean indicating if the node was found or not.
- 
+
 }
 
 @section{String functions}
