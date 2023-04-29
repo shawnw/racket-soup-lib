@@ -1,11 +1,12 @@
 #lang racket/base
 
 (require racket/contract racket/function racket/list racket/sequence racket/stxparam racket/unsafe/ops
+         syntax/parse/define
          (only-in srfi/1 append-reverse) data/queue srfi/141
          (for-syntax racket/base))
 (module+ test (require rackunit))
 (provide
- collect collecting
+ collect collecting with-collector with-collectors
  (contract-out
   [lmin (->* ((and/c list? (not/c null?))) ((-> any/c any/c any/c)) any/c)]
   [lmax (->* ((and/c list? (not/c null?))) ((-> any/c any/c any/c)) any/c)]
@@ -169,7 +170,7 @@
 (define-syntax-parameter collect
   (lambda (stx) (raise-syntax-error 'collect "Can't use collect outside of collecting" stx)))
 
-(define-syntax-rule (collecting body ...)
+(define-syntax-parse-rule (collecting body:expr ...)
   (let* ([res (make-queue)]
          [%collect (lambda elems
                      (if (null? elems)
@@ -178,6 +179,21 @@
     (syntax-parameterize ([collect (make-rename-transformer #'%collect)])
       ((lambda () body ...))
       (queue->list res))))
+
+(define-syntax-parse-rule (with-collector (collector:id) body:expr ...)
+  (with-collectors (collector) body ...))
+
+(define-syntax-parse-rule (with-collectors (collector:id ...) body:expr ...)
+  (let ([make-collector
+         (lambda ()
+           (let ([res (make-queue)])
+             (lambda elems
+               (if (null? elems)
+                   (queue->list res)
+                   (for-each (curry enqueue! res) elems)))))])
+    (let ([collector (make-collector)] ...)
+      ((lambda () body ...))
+      (values (collector) ...))))
 
 (define (alist-map proc alist)
   (for/list ([elem (in-list alist)])
@@ -310,4 +326,13 @@
 
   (check-equal? (collecting (for ([n (in-range 2 100)]) (unless (findf (lambda (d) (= (remainder n d) 0)) (collect)) (collect n))))
                 '(2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97))
+
+  (check-equal? (call-with-values
+                 (thunk
+                  (with-collectors (x y z)
+                    (x 1)
+                    (y 2)
+                    (z 3)))
+                 list)
+                '((1) (2) (3)))
   )

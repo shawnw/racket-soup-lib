@@ -209,9 +209,9 @@ as well as the @hyperlink["https://github.com/ruricolist/serapeum/blob/master/RE
 
 }
 
-@defform[(collecting form ...)]{
+@defform[(collecting body ...)]{
 
- The classic Lisp @racket{collecting} macro. Executes the forms and returns a list made up of the values passed to @code{collect} in it.
+ The classic Lisp @racket{collecting} macro. Executes the body and returns a list made up of the values passed to @code{collect} in it.
 
 }
 
@@ -220,6 +220,22 @@ as well as the @hyperlink["https://github.com/ruricolist/serapeum/blob/master/RE
 
  Only usable inside @code{collecting}; appends the values to that macros' result list. When called without any arguments, returns a list of the
  currently collected values.
+
+}
+
+@defform[(with-collector (collector) body ...)]{
+
+From @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#with-collector-collector-body-body"]{Serapeum}.
+
+ Like @code{collecting} but allows a user-defined name instead of @code{collect}.
+
+}
+
+@defform[(with-collectors (collector ...) body ...)]{
+
+From @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#with-collectors-rest-collectors-body-body"]{Serapeum}.
+
+ Like @code{with-collector} but allows multiple different collectors. Returns one value per collector.
 
 }
 
