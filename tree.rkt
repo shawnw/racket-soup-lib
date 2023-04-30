@@ -1,6 +1,7 @@
 #lang racket/base
 
-(require racket/contract racket/control racket/function racket/undefined "list.rkt")
+(require racket/contract racket/control racket/function racket/undefined racket/unsafe/ops
+         "list.rkt")
 
 (module+ test (require rackunit))
 
@@ -9,8 +10,8 @@
 (provide
  copy-tree tree-equal? subst subst-if ; from soup-lib/list
  (contract-out
-  [map-tree (->* ((-> any/c any/c) any/c) (#:tag continuation-prompt-tag? #:traversal traverse-type/c) any/c)]
-  [walk-tree (->* ((-> any/c any) any/c) (#:tag continuation-prompt-tag? #:traversal traverse-type/c) void?)]
+  [map-tree (->* ((-> any/c any/c) any/c) (#:tag (prompt-tag/c any/c) #:traversal traverse-type/c) any/c)]
+  [walk-tree (->* ((-> any/c any) any/c) (#:tag (prompt-tag/c any/c) #:traversal traverse-type/c) void?)]
   [leaf-map (-> (-> any/c any/c) any/c any/c)]
   [leaf-walk (-> (-> any/c any) any/c void?)]
   [occurs-if (->* ((-> any/c any/c) any/c) (#:traversal traverse-type/c #:key (-> any/c any/c)) (values any/c boolean?))]
@@ -25,19 +26,19 @@
 
 (define (walk-tree fun tree #:tag [tag (default-continuation-prompt-tag)] #:traversal [traverse 'preorder])
   (void (map-tree (lambda (subtree)
-              (fun subtree)
-              subtree)
-            tree
-            #:tag tag
-            #:traversal traverse)))
+                    (fun subtree)
+                    subtree)
+                  tree
+                  #:tag tag
+                  #:traversal traverse)))
 
 (define (map-tree/preorder fun tree prompt)
   (call-with-continuation-prompt
    (thunk
     (let ([tree2 (fun tree)])
       (if (pair? tree2)
-          (reuse-cons (map-tree/preorder fun (car tree2) prompt)
-                      (map-tree/preorder fun (cdr tree2) prompt)
+          (reuse-cons (map-tree/preorder fun (unsafe-car tree2) prompt)
+                      (map-tree/preorder fun (unsafe-cdr tree2) prompt)
                       tree2)
           tree2)))
    prompt
@@ -47,9 +48,9 @@
     (call-with-continuation-prompt
      (thunk
       (if (pair? tree)
-          (let* ([left (map-tree/postorder fun (car tree) prompt)]
-                   [right (map-tree/postorder fun (cdr tree) prompt)]
-                   [tree2 (reuse-cons left right tree)])
+          (let* ([left (map-tree/postorder fun (unsafe-car tree) prompt)]
+                 [right (map-tree/postorder fun (unsafe-cdr tree) prompt)]
+                 [tree2 (reuse-cons left right tree)])
             (fun tree2))
           (fun tree)))
      prompt
@@ -59,24 +60,25 @@
   (call-with-continuation-prompt
    (thunk
     (if (pair? tree)
-        (let* ([left (map-tree/inorder fun (car tree) prompt)]
-               [tree2 (map-tree/inorder fun (reuse-cons left (cdr tree) tree) prompt)])
+        (let* ([left (map-tree/inorder fun (unsafe-car tree) prompt)]
+               [tree2 (fun (reuse-cons left (unsafe-cdr tree) tree))])
           (reuse-cons (car tree2) (map-tree/inorder fun (cdr tree2) prompt) tree2))
         (fun tree)))
    prompt
    identity))
 
 (define (leaf-walk fun tree)
-  (walk-tree
-   (lambda (node)
-     (unless (or (pair? node) (null? node))
-       (fun node)))
-   tree))
+  (cond
+    ((pair? tree)
+     (leaf-walk fun (unsafe-car tree))
+     (leaf-walk fun (unsafe-cdr tree)))
+    (else
+     (void (fun tree)))))
 
 (define (leaf-map fun tree)
   (map-tree
    (lambda (node)
-     (if (or (pair? node) (null? node))
+     (if (list? node)
          node
          (fun node)))
    tree))
