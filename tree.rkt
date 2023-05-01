@@ -3,7 +3,7 @@
 (require racket/contract racket/control racket/function racket/undefined racket/unsafe/ops
          "list.rkt")
 
-(module+ test (require rackunit))
+(module+ test (require rackunit racket/list))
 
 (define traverse-type/c (or/c 'preorder 'postorder 'inorder))
 
@@ -16,6 +16,8 @@
   [leaf-walk (-> (-> any/c any) any/c void?)]
   [occurs-if (->* ((-> any/c any/c) any/c) (#:traversal traverse-type/c #:key (-> any/c any/c)) (values any/c boolean?))]
   [occurs (->* (any/c any/c) (#:traversal traverse-type/c #:key (-> any/c any/c) #:test (-> any/c any/c any/c)) (values any/c boolean?))]
+  [prune-if (->* ((-> any/c any/c) any/c) (#:key (-> any/c any/c)) any/c)]
+  [prune (->* (any/c any/c) (#:key (-> any/c any/c) #:test (-> any/c any/c any/c)) any/c)]
   ))
 
 (define (map-tree fun tree #:tag [tag #f] #:traversal [traverse 'preorder])
@@ -132,6 +134,25 @@
 (define (occurs node tree #:key [key identity] #:test [test? eqv?] #:traversal [traverse 'preorder])
   (occurs-if (curry test? node) tree #:key key #:traversal traverse))
 
+(define (prune-if pred? tree #:key [key identity])
+  (define (maybe-cons car cdr)
+    (if (pred? (key car))
+        cdr
+        (cons car cdr)))
+  (let prune ([tree tree]
+              [acc '()])
+    (cond
+      ((null? tree) (reverse acc))
+      ((pair? (car tree))
+       (prune (cdr tree)
+              (maybe-cons (prune (car tree) '()) acc)))
+      (else
+       (prune (cdr tree)
+              (maybe-cons (car tree) acc))))))
+
+(define (prune leaf tree #:key [key identity] #:test [test eqv?])
+  (prune-if (curry test leaf) tree #:key key))
+
 (module+ test
 
   (define-syntax-rule (test-values-equal? name test expected ...)
@@ -158,5 +179,24 @@
 
   (test-values-equal? "occurs found" (occurs 'b '((a (b) (c d)))) 'b #t)
   (test-values-equal? "occurs not found" (occurs 'q '((a (b) (c d)))) undefined #f)
-  
+
+  (define (random-elt lst)
+    (list-ref lst (random (length lst))))
+
+  (define prune-trees
+    '((((2 1) 5) (3 10) 8)
+      (((4 1) 25) (9 100) 64)
+      ((a (b) (c (skip-me d (e f)))))
+      ((a (b) (c skipped)))
+      (a (b c))
+      ((a (b c)) a (b c) b c)
+      (a (a (b c)) b (b c) c)
+      (a b c (b c) (a (b c)))))
+  (for ([tree (in-list prune-trees)])
+    (let ([elt (random-elt tree)])
+      (check-equal? (flatten (prune elt tree))
+                    (remove* (list elt) (flatten tree) eqv?))))
+
+  (test-equal? "prune-if" (prune-if null? '(2 (()))) '(2))
+
   )
