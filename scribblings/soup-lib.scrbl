@@ -26,6 +26,15 @@ Provides all the functions exported by the modules below.
 
 }
 
+@defproc[(directory-tree [dirname (and/c path-string? directory-exists?)] [#:follow-links? follow-links? any/c #t])
+         (listof (flat-rec-contract entry path? (cons/c path? (listof entry))))]{
+
+ Scans the given directory and returns a list that's the root of a tree structure of its contents. Each element is either a list where the first entry is the name of a
+ subdirectory and the rest of the list that directory's contents, or paths of non-directory files. If @tt{#:follow-links?} is true, symbolic links to directories are
+ traversed, if false, just the name of the link is included.
+
+}
+
 @section{Additional @code{for} and @code{for*} style comprehensions}
 
 @defmodule[soup-lib/for]
@@ -312,21 +321,21 @@ Functions for working on trees made of @code{cons} cells; mostly taken from Comm
 
 }
 
-@defproc[(walk-tree [fun (-> any/c any)] [tree any/c] [#:tag tag continuation-prompt-tag? (default-continuation-prompt-tag)]
+@defproc[(walk-tree [fun (-> any/c any)] [tree any/c] [#:tag tag (or/c continuation-prompt-tag? #f) #f]
                     [#:traversal traversal (or/c 'preorder 'inorder 'postorder) 'preorder]) void?]{
 
- From @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#walk-tree-fun-tree-key-tag-traversal"]{Serapheum}.
+ From @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#walk-tree-fun-tree-key-tag-traversal"]{Serapeum}.
 
  Call @code{fun} in turn over each atom and cons of @code{tree}.
 
- @code{fun} can skip the current subtree with @code{(abort/cc tag)}.
+ @code{fun} can skip the current subtree with @code{(abort/cc tag '())}.
 
  }
 
-@defproc[(map-tree [fun (-> any/c any/c)] [tree any/c] [#:tag tag continuation-prompt-tag? (default-continuation-prompt-tag)]
+@defproc[(map-tree [fun (-> any/c any/c)] [tree any/c] [#:tag tag (or/c continuation-prompt-tag? #f) #f]
                    [#:traversal traversal (or/c 'preorder 'inorder 'postorder) 'preorder]) any/c]{
 
- From @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#map-tree-fun-tree-key-tag-traversal"]{Serapheum}.
+ From @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#map-tree-fun-tree-key-tag-traversal"]{Serapeum}.
 
  Walk @code{fun} over @code{tree} and build a tree from the results.
 
@@ -342,7 +351,7 @@ The new tree may share structure with the old tree.
 
 @defproc[(leaf-walk [fun (-> any/c any)] [tree any/c]) void?]{
 
- From @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#leaf-walk-fun-tree"]{Serapheum}.
+ From @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#leaf-walk-fun-tree"]{Serapeum}.
 
  Call @code{fun} on each leaf of @code{tree}.
 
@@ -350,7 +359,7 @@ The new tree may share structure with the old tree.
 
 @defproc[(leaf-map [fun (-> any/c any/c)] [tree any/c]) any/c]{
 
- From @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#leaf-map-fn-tree"]{Serapheum}.
+ From @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#leaf-map-fn-tree"]{Serapeum}.
 
  Call @code{fun} on each leaf of @code{tree}. Return a new tree possibly sharing structure with @code{tree}.
 
@@ -359,7 +368,7 @@ The new tree may share structure with the old tree.
 @defproc[(occurs-if [test (-> any/c any/c)] [tree any/c] [#:key key (-> any/c any/c) identity]
                      [#:traversal traversal (or/c 'preorder 'inorder 'postorder) 'preorder]) (values any/c boolean?)]{
 
-From @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#occurs-if-test-tree-key-key-traversal"]{Serapheum}.
+From @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#occurs-if-test-tree-key-key-traversal"]{Serapeum}.
 
 Is there a node (leaf or cons) in @code{tree} that satisfies @code{test}?
 
@@ -370,11 +379,31 @@ Is there a node (leaf or cons) in @code{tree} that satisfies @code{test}?
 @defproc[(occurs [node any/c] [tree any/c] [#:key key (-> any/c any/c) identity] [#:test test (-> any/c any/c any/c) eqv?]
                  [#:traversal traversal (or/c 'preorder 'inorder 'postorder) 'preorder]) (values any/c boolean?)]{
 
- From @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#occurs-node-tree-key-key-test-traversal"]{Serapheum}.
+ From @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#occurs-node-tree-key-key-test-traversal"]{Serapeum}.
 
  Is @code{node} present in @code{tree}?
 
  Returns two values - the node that matched (Or @code{undefined} if none did) and a boolean indicating if the node was found or not.
+
+}
+
+@defproc[(prune-if [test (-> any/c any/c)] [tree list?] [#:key key (-> any/c any/c) identity]) list?]{
+
+ From @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#prune-if-test-tree-key-key"]{Serapeum}.
+
+ Remove any atoms satisfying @code{test} from @code{tree}.
+
+ Pruning is defined "modulo flatten": you should get the same result from pruning, and then flattening, that you would get from flattening, and then filtering.
+
+ Also note that pruning is not defined for trees containing improper lists.
+
+}
+
+@defproc[(prune [leaf any/c] [tree list?] [#:key key (-> any/c any/c) identity] [#:test test (-> any/c any/c any/c) eqv?]) list?]{
+
+ From @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#prune-leaf-tree-key-key-test"]{Serapeum}.
+
+ Remove @code{leaf} from @code{tree} wherever it occurs. See @code{prune-if} for more information.
 
 }
 
