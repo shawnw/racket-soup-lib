@@ -560,3 +560,16 @@ Example:
  The optional @code{name} argument is as in @code{make-parameter}. The default name is @code{id} instead of @code{'parameter-procedure}, though.
 
 }
+
+@section{Math functions}
+
+@defmodule[soup-lib/math]
+
+Written in Typed Racket.
+
+@defproc[(integer-log [base exact-integer?] [num exact-integer?]) exact-integer?]{
+
+ Computes the integer logarithm base @code{base} of @code{num}. Uses Oleg Kiselyov's
+ @hyperlink["https://okmij.org/ftp/Haskell/AlgorithmsH1.html#basewidth"]{fast algorithm} ported from Haskell to get good performance on even very very large numbers.
+
+ }
