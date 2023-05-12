@@ -4,7 +4,9 @@
 
 (provide
  (contract-out
+  [make-directory* (->* (path-string?) ((integer-in 0 65535)) boolean?)]
   [delete-file* (-> path-string? boolean?)]
+  [delete-directory* (-> path-string? boolean?)]
   [directory-tree (->* (path-string?) (#:follow-links? any/c)
                        (listof (flat-rec-contract entry path? (cons/c path? (listof entry))))
                        )]))
@@ -12,6 +14,16 @@
 (define (delete-file* filename)
   (with-handlers ([exn:fail:filesystem? (lambda (exn) #f)])
     (delete-file filename)
+    #t))
+
+(define (make-directory* dirname [permissions #o777])
+  (with-handlers ([exn:fail:filesystem? (lambda (exn) #f)])
+    (make-directory dirname permissions)
+    #t))
+
+(define (delete-directory* dirname)
+  (with-handlers ([exn:fail:filesystem? (lambda (exn) #f)])
+    (delete-directory dirname)
     #t))
 
 (define (directory-tree dirname #:follow-links? [follow-links? #t])

@@ -18,11 +18,27 @@ Provides all the functions exported by the modules below.
 
 @defmodule[soup-lib/files]
 
+@defproc[(make-directory* [dirname path-string?] [permissions (integer-in 0 65535) #o777]) boolean?]{
+
+ Create a directory without raising an error if it can't be.
+
+ Returns true if the directory was created, false on failure.
+
+}
+
 @defproc[(delete-file* [filename path-string?]) boolean?]{
 
- Deletes a file without raising an error if it doesn't exist.
+ Deletes a file without raising an error if it can't be.
 
  Returns true if the file was deleted, false on failure.
+
+}
+
+@defproc[(delete-directory* [dirname path-string?]) boolean?]{
+
+ Deletes a directory without raising an error if it can't be.
+
+ Returns true if the directory was deleted, false on failure.
 
 }
 
