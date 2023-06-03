@@ -589,3 +589,18 @@ Written in Typed Racket.
  @hyperlink["https://okmij.org/ftp/Haskell/AlgorithmsH1.html#basewidth"]{fast algorithm} ported from Haskell to get good performance on even very very large numbers.
 
  }
+
+@section{Control functions}
+
+@defmodule[soup-lib/control]
+
+@defform[(let/comp maybe-prompt k body ...+)
+         #:grammar
+         [(maybe-prompt (code:line) (code:line #:prompt prompt-tag))]
+         #:contracts ([prompt-tag continuation-prompt-tag?])
+
+         ]{
+
+ Has the same relation to @code{call-with-composable-continuation} that @code{let/cc} has to @code{call-with-current-continuation}.
+
+}
