@@ -604,3 +604,19 @@ Written in Typed Racket.
  Has the same relation to @code{call-with-composable-continuation} that @code{let/cc} has to @code{call-with-current-continuation}.
 
 }
+
+@section{Vector functions}
+
+@defmodule[soup-lib/vector]
+
+@defproc[(vector-shuffle [vec vector?] [start exact-nonnegative-integer? 0] [end exact-nonnegative-integer? (vector-length vec)]) vector?]{
+
+ Returns a newly allocated copy of the given range of @code{vec}, shuffled in random order.
+
+}
+
+@defproc[(vector-shuffle! [vec (and/c vector? (not/c immutable?))] [start exact-nonnegative-integer? 0] [end exact-nonnegative-integer? (vector-length vec)]) void?]{
+
+ Shuffles the given range of the mutable vector in-place.
+
+}
