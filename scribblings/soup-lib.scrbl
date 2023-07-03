@@ -620,3 +620,16 @@ Written in Typed Racket.
  Shuffles the given range of the mutable vector in-place.
 
 }
+
+@defproc[(fxvector-sort! [vec fxvector?] [start exact-nonnegative-integer? 0] [end exact-nonnegative-integer? (fxvector-length vec)]) void?]{
+
+ Sorts the given range of a fxvector inplace, in ascending order.
+
+
+}
+
+@defproc[(fxvector-sort [vec fxvector?] [start exact-nonnegative-integer? 0] [end exact-nonnegative-integer? (fxvector-length vec)]) fxvector?]{
+
+ Returns a newly allocated copy of the given range of the fxvector, sorted in ascending order.
+
+}
