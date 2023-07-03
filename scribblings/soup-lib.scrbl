@@ -605,6 +605,20 @@ Written in Typed Racket.
 
 }
 
+@defform[(lret ([id init] ...) body ...)]{
+
+ Like @code{let}, but it returns the values of the bindings after executing the body.
+ From @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#lret-rest-bindings-body-body"]{Serapeum}.
+
+}
+
+@defform[(lret* ([id init] ...) body ...)]{
+
+ Like @code{let*}, but it returns the values of the bindings after executing the body.
+ From @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#lret-rest-bindings-body-body-1"]{Serapeum}.
+
+}
+
 @section{Vector functions}
 
 @defmodule[soup-lib/vector]

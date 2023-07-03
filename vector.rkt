@@ -1,6 +1,6 @@
 #lang racket/base
 
-(require racket/contract srfi/133 srfi/160/fx racket/unsafe/ops
+(require racket/contract srfi/133 srfi/160/fx racket/unsafe/ops "control.rkt"
          (for-syntax racket/base))
 
 (define (mutable-vector? v)
@@ -15,9 +15,8 @@
   ))
 
 (define (vector-shuffle vec [start 0] [end (vector-length vec)])
-  (let ([copy (vector-copy vec start end)])
-    (vector-shuffle! copy start end)
-    copy))
+  (lret ([copy (vector-copy vec start end)])
+    (vector-shuffle! copy start end)))
 
 (define (vector-shuffle! vec [start 0] [end (vector-length vec)])
   (for ([i (in-inclusive-range (- end 1) start -1)])
@@ -88,7 +87,6 @@
        (fxvector-sort! fxv (unsafe-fx+ split-idx 1) end)))))
 
 (define (fxvector-sort fxv [start 0] [end (fxvector-length fxv)])
-  (let ([new-fxv (fxvector-copy fxv start end)])
-    (fxvector-sort! new-fxv)
-    new-fxv))
+  (lret ([new-fxv (fxvector-copy fxv start end)])
+    (fxvector-sort! new-fxv)))
 
