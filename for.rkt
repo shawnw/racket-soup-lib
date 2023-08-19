@@ -6,6 +6,7 @@
 (provide for/string for*/string for/bytes for*/bytes for/max for*/max for/min for*/min)
 
 (define-syntax-parse-rule (for/string (~optional (~seq #:length slen:expr)) clauses body ... tail-expr)
+  #:with original this-syntax
   #:with ((pre-body ...) (post-body ...)) (split-for-body this-syntax #'(body ... tail-expr))
   #:with rlen #'(~? slen 32)
   (begin
@@ -45,6 +46,7 @@
 
 
 (define-syntax-parse-rule (for*/string (~optional (~seq #:length slen:expr)) clauses body ... tail-expr)
+  #:with original this-syntax
   #:with ((pre-body ...) (post-body ...)) (split-for-body this-syntax #'(body ... tail-expr))
   #:with rlen #'(~? slen 32)
   (begin
@@ -168,6 +170,30 @@
     (define n (let () post-body ...))
     (if (< n current-min) n current-min)))
 
+(define-syntax-parse-rule (for/list/mv clauses body ... tail-expr)
+  #:with original this-syntax
+  #:with ((pre-body ...) (post-body ...)) (split-for-body this-syntax #'(body ... tail-expr))
+  (for/foldr/derived original
+    ([result '()])
+    clauses
+    pre-body ...
+    (call-with-values
+     (lambda () post-body ...)
+     (lambda vals
+       (append vals result)))))
+
+(define-syntax-parse-rule (for*/list/mv clauses body ... tail-expr)
+  #:with original this-syntax
+  #:with ((pre-body ...) (post-body ...)) (split-for-body this-syntax #'(body ... tail-expr))
+  (for*/foldr/derived original
+    ([result '()])
+    clauses
+    pre-body ...
+    (call-with-values
+     (lambda () post-body ...)
+     (lambda vals
+       (append vals result)))))
+
 (module+ test
   (check-equal? (for/string ([ch (in-list '(#\a #\b #\c #\d))]) ch) "abcd")
   (check-equal? (for/string #:length (string-length "abcd") ([ch (in-list '(#\a #\b #\c #\d))]) (char-upcase ch)) "ABCD")
@@ -176,4 +202,9 @@
   (check-equal? (for/bytes #:length 4 ([ch (in-list '(#\a #\b #\c #\d))]) (char->integer (char-upcase ch))) #"ABCD")
 
   (check-equal? (for/min ([n (in-range 1 10)]) (* n 2)) 2)
-  (check-equal? (for/max ([n (in-range 1 11)]) (* n 2)) 20))
+  (check-equal? (for/max ([n (in-range 1 11)]) (* n 2)) 20)
+
+  (check-equal? (for/list/mv ([elem (in-list '(a b c))]
+                              [pos (in-naturals 1)])
+                  (values elem pos))
+                '(a 1 b 2 c 3)))
