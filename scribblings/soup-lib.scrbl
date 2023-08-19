@@ -112,6 +112,18 @@ Provides all the functions exported by the modules below.
 
 }
 
+@defform[(for/list/mv (sequences) body ...+)]{
+
+ Like @code{for/list}, but the body can return multiple values, all of which are added to the result list.
+
+}
+
+@defform[(for*/list/mv (sequences) body ...+)]{
+
+ Like @code{for*/list}, but the body can return multiple values, all of which are added to the result list.
+
+}
+
 @section{Hash Table functions}
 
 @defmodule[soup-lib/hash]
@@ -618,6 +630,22 @@ Written in Typed Racket.
  From @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#lret-rest-bindings-body-body-1"]{Serapeum}.
 
 }
+
+@defform[(named-let-values name ([(id ...) producer] ...) body ...+)
+         #:contracts
+         [(name identifier?)
+          (id identifier?)]]{
+
+Like a named @code{let}, but the initial values for @code{id}s are obtained from the values returned by evaluating @code{producer}s.
+             When recursing in the body, arguments correspond to @code{id}s going left to right top to bottom.
+
+ Example:
+
+ @codeblock{
+  (named-let-values loop ([(a b) (values 1 2)]) (if (= b 10) a (loop (+ a b) (+ b 1))))
+  }
+}
+
 
 @section{Vector functions}
 
