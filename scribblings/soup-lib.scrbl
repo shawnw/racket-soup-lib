@@ -55,70 +55,78 @@ Provides all the functions exported by the modules below.
 
 @defmodule[soup-lib/for]
 
-@defform[(for/max (sequences) body ...+)]{
+@defform[(for/max (for-clauses ...) body-or-break ... body)]{
 
  @code{body} must evaluate to a single real number at each iteration, the maximum of which is returned.
 
 }
 
-@defform[(for*/max (sequences) body ...+)]{
+@defform[(for*/max (for-clauses) body-or-break ... body)]{
 
  @code{body} must evaluate to a single real number at each iteration, the maximum of which is returned.
 
 }
 
-@defform[(for/min (sequences) body ...+)]{
+@defform[(for/min (for-clauses) body-or-break ... body)]{
 
  @code{body} must evaluate to a single real number at each iteration, the minimum of which is returned.
 
 }
 
-@defform[(for*/min (sequences) body ...+)]{
+@defform[(for*/min (for-clauses) body-or-break ... body)]{
 
  @code{body} must evaluate to a single real number at each iteration, the minimum of which is returned.
 
 }
 
 
-@defform[(for/string [#:length exact-positive-integer?] (sequences) body ...+)]{
+@defform[(for/string maybe-length (for-clauses) body-or-break ... body)
+         #:grammar [(maybe-length (code:line) (code:line #:length len))]
+         #:contracts [(len exact-nonnegative-integer?)]]{
 
-@code{body ...} must evaluate to a string or character at each iteration, all of which are returned as a single string.
-
- The optional @code{#:length} argument can be used to give the expected length of the result as an optimization.
-
-}
-
-@defform[(for*/string [#:length exact-positive-integer?] (sequences) body ...+)]{
-
-@code{body ...} must evaluate to a string or character at each iteration, all of which are returned as a single string.
+@code{body} must evaluate to a string or character at each iteration, all of which are returned as a single string.
 
  The optional @code{#:length} argument can be used to give the expected length of the result as an optimization.
 
 }
 
-@defform[(for/bytes [#:length exact-positive-integer?] (sequences) body ...+)]{
+@defform[(for*/string (for-clauses) body-or-break ... body)
+         #:grammar [(maybe-length (code:line) (code:line #:length len))]
+         #:contracts [(len exact-nonnegative-integer?)]]{
 
-@code{body ...} must evaluate to a single byte at each iteration, all of which are returned as a bytestring.
-
- The optional @code{#:length} argument can be used to give the expected length of the result as an optimization.
-
-}
-
-@defform[(for*/bytes [#:length exact-positive-integer?] (sequences) body ...+)]{
-
-@code{body ...} must evaluate to a single byte at each iteration, all of which are returned as a bytestring.
+@code{body} must evaluate to a string or character at each iteration, all of which are returned as a single string.
 
  The optional @code{#:length} argument can be used to give the expected length of the result as an optimization.
 
 }
 
-@defform[(for/list/mv (sequences) body ...+)]{
+@defform[(for/bytes (for-clauses) body-or-break ... body)
+         #:grammar [(maybe-length (code:line) (code:line #:length len))]
+         #:contracts [(len exact-nonnegative-integer?)]]{
+
+@code{body} must evaluate to a single byte at each iteration, all of which are returned as a bytestring.
+
+ The optional @code{#:length} argument can be used to give the expected length of the result as an optimization.
+
+}
+
+@defform[(for*/bytes (for-clauses) body-or-break ... body)
+         #:grammar [(maybe-length (code:line) (code:line #:length len))]
+         #:contracts [(len exact-nonnegative-integer?)]]{
+
+@code{body} must evaluate to a single byte at each iteration, all of which are returned as a bytestring.
+
+ The optional @code{#:length} argument can be used to give the expected length of the result as an optimization.
+
+}
+
+@defform[(for/list/mv (for-clauses) body-or-break ... body)]{
 
  Like @code{for/list}, but the body can return multiple values, all of which are added to the result list.
 
 }
 
-@defform[(for*/list/mv (sequences) body ...+)]{
+@defform[(for*/list/mv (for-clauses) body-or-break ... body)]{
 
  Like @code{for*/list}, but the body can return multiple values, all of which are added to the result list.
 
