@@ -5,3 +5,5 @@ soup-lib
 
 A collection of random useful things that aren't big enough or
 important enough to make a package of. A soup of utilities if you will.
+
+Includes a lot of things taken from Common Lisp and popular CL libraries.

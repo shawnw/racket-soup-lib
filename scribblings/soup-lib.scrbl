@@ -1,6 +1,6 @@
 #lang scribble/manual
 @require[@for-label[soup-lib
-                    racket/base racket/contract racket/control racket/function racket/undefined
+                    (except-in racket/base do) racket/contract racket/control racket/function racket/undefined
                     json]]
 
 @title{Soup: A library of useful routines}
@@ -617,6 +617,26 @@ Written in Typed Racket.
 
 }
 
+@defform[(named-let-values name ([(id ...) producer] ...) body ...+)
+         #:contracts
+         [(name identifier?)
+          (id identifier?)]]{
+
+Like a named @code{let}, but the initial values for @code{id}s are obtained from the values returned by evaluating @code{producer}s.
+             When recursing in the body, arguments correspond to @code{id}s going left to right top to bottom.
+
+ Example:
+
+ @codeblock{
+  (named-let-values loop ([(a b) (values 1 2)]) (if (= b 10) a (loop (+ a b) (+ b 1))))
+  }
+}
+
+@subsection{Common Lisp forms}
+
+Things taken from Common Lisp. Implicit blocks are supported, implicit tagbodies are not.
+
+
 @defform[(lret ([id init] ...) body ...)]{
 
  Like @code{let}, but it returns the values of the bindings after executing the body.
@@ -631,19 +651,83 @@ Written in Typed Racket.
 
 }
 
-@defform[(named-let-values name ([(id ...) producer] ...) body ...+)
+@defform[(block name body ...)
          #:contracts
-         [(name identifier?)
-          (id identifier?)]]{
+         [(name identifier?)]]{
 
-Like a named @code{let}, but the initial values for @code{id}s are obtained from the values returned by evaluating @code{producer}s.
-             When recursing in the body, arguments correspond to @code{id}s going left to right top to bottom.
+ See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/s_block.htm"]{Common Lisp @code{block}}.
 
- Example:
+}
 
- @codeblock{
-  (named-let-values loop ([(a b) (values 1 2)]) (if (= b 10) a (loop (+ a b) (+ b 1))))
-  }
+@defform*[((return) (return result))]{
+
+ See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/m_return.htm#return"]{Common Lisp @code{return}}.
+
+}
+
+@defform*[((return-from name) (return-from name result))
+          #:contracts
+          [(name identifier?)]]{
+
+ See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/s_ret_fr.htm#return-from"]{Common Lisp @code{return-from}}.
+
+}
+
+@defform[(do ((var init incr) ...) (end-case result ...) body ...)]{
+
+ Basically, normal Racket @code{do} extended to be in a @code{block} that can be @code{return}ed from early.
+ See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/m_do_do.htm"]{Common Lisp @code{do}} for more.
+
+}
+
+@defform[(do* ((var init incr) ...) (end-case result ...) body ...)]{
+
+ Like @code{do} but with @code{let*} style scoping.
+ See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/m_do_do.htm"]{Common Lisp @code{do*}} for more.
+
+}
+
+@defform[(dotimes (var count-form maybe-result) body ...)
+         #:grammar
+         [(maybe-result (code:line) (code:line expr))]
+         #:contracts
+         [(var identifier?)]]{
+
+
+ See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/m_dotime.htm"]{Common Lisp @code{dotimes}}.
+
+}
+
+@defform[(dolist (var list-form maybe-result) body ...)
+         #:grammar
+         [(maybe-result (code:line) (code:line expr))]
+         #:contracts
+         [(var identifier?)]]{
+
+ See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/m_dolist.htm"]{Common Lisp @code{dolist}}.
+
+}
+
+@defform[(prog (variable-declaration ...) body ...)
+         #:grammar
+         [(variable-declaration (code:line var) (code:line (var)) (code:line (var init-form)))]
+         #:contracts
+         [(var identifier?)]]{
+
+
+See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/m_prog_.htm"]{Common Lisp @code{prog}}.
+
+}
+
+@defform[(prog* (variable-declaration ...) body ...)
+         #:grammar
+         [(variable-declaration (code:line var) (code:line (var)) (code:line (var init-form)))]
+         #:contracts
+         [(var identifier?)]]{
+
+
+See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/m_prog_.htm"]{Common Lisp @code{prog*}}.
+
 }
 
 
