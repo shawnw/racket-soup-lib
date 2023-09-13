@@ -3,7 +3,8 @@
 (require syntax/parse/define racket/fixnum racket/unsafe/ops
          (for-syntax racket/base syntax/for-body))
 (module+ test (require rackunit))
-(provide for/string for*/string for/bytes for*/bytes for/max for*/max for/min for*/min)
+(provide for/string for*/string for/bytes for*/bytes for/max for*/max for/min for*/min
+         for/list/mv for*/list/mv for/count for*/count)
 
 (define-syntax-parse-rule (for/string (~optional (~seq #:length slen:expr)) clauses body ... tail-expr)
   #:with original this-syntax
@@ -194,6 +195,28 @@
      (lambda vals
        (append vals result)))))
 
+(define-syntax-parse-rule (for/count clauses body ... tail-expr)
+  #:with original this-syntax
+  #:with ((pre-body ...) (post-body ...)) (split-for-body this-syntax #'(body ... tail-expr))
+  (for/fold/derived original
+    ([count 0])
+    clauses
+    pre-body ...
+    (if (let () post-body ...)
+        (add1 count)
+        count)))
+
+(define-syntax-parse-rule (for*/count clauses body ... tail-expr)
+  #:with original this-syntax
+  #:with ((pre-body ...) (post-body ...)) (split-for-body this-syntax #'(body ... tail-expr))
+  (for*/fold/derived original
+    ([count 0])
+    clauses
+    pre-body ...
+    (if (let () post-body ...)
+        (add1 count)
+        count)))
+
 (module+ test
   (check-equal? (for/string ([ch (in-list '(#\a #\b #\c #\d))]) ch) "abcd")
   (check-equal? (for/string #:length (string-length "abcd") ([ch (in-list '(#\a #\b #\c #\d))]) (char-upcase ch)) "ABCD")
@@ -207,4 +230,8 @@
   (check-equal? (for/list/mv ([elem (in-list '(a b c))]
                               [pos (in-naturals 1)])
                   (values elem pos))
-                '(a 1 b 2 c 3)))
+                '(a 1 b 2 c 3))
+
+  (check-equal? (for/count ([i (in-range 1 11)]) (even? i)) 5)
+
+  )

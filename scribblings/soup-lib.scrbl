@@ -124,6 +124,19 @@ Provides all the functions exported by the modules below.
 
 }
 
+@defform[(for/count (for-clause ...) body-or-break ... body)]{
+
+Returns the number of times @code{body} evaluates to a true value.
+
+}
+
+@defform[(for*/count (for-clause ...) body-or-break ... body)]{
+
+Returns the number of times @code{body} evaluates to a true value.
+
+}
+
+
 @section{Hash Table functions}
 
 @defmodule[soup-lib/hash]
