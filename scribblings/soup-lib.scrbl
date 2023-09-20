@@ -55,6 +55,8 @@ Provides all the functions exported by the modules below.
 
 @defmodule[soup-lib/for]
 
+@subsection{for loops}
+
 @defform[(for/max (for-clauses ...) body-or-break ... body)]{
 
  @code{body} must evaluate to a single real number at each iteration, the maximum of which is returned.
@@ -144,6 +146,13 @@ Returns the number of times @code{body} evaluates to a true value.
 
 }
 
+@subsection{Sequences}
+
+@defproc[(in-char-range [start char?] [end char?]) sequence?]{
+
+Returns a sequence that iterates over the given (inclusive) range of characters. Ascending if the first character is @code{char<=?} the second, descending if @code{char>?}.
+
+}
 
 @section{Hash Table functions}
 

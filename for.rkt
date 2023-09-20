@@ -1,10 +1,12 @@
 #lang racket/base
 
-(require syntax/parse/define racket/fixnum racket/unsafe/ops
+(require syntax/parse/define racket/contract racket/fixnum racket/unsafe/ops
          (for-syntax racket/base syntax/for-body))
 (module+ test (require rackunit))
 (provide for/string for*/string for/bytes for*/bytes for/max for*/max for/min for*/min
-         for/list/mv for*/list/mv for/count for*/count)
+         for/list/mv for*/list/mv for/count for*/count
+         (contract-out
+          [in-char-range (-> char? char? sequence?)]))
 
 (define-syntax-parse-rule (for/string (~optional (~seq #:length slen:expr)) clauses body ... tail-expr)
   #:with original this-syntax
@@ -205,12 +207,26 @@
         (add1 count)
         count)))
 
+(define (in-char-range start end)
+  (make-do-sequence
+   (lambda ()
+     (values
+      integer->char ; pos->element
+      #f ; early-next-pos
+      (if (char<=? start end) ; next-pos
+          add1
+          sub1)
+      (char->integer start) ; initial position
+      #f ; continue-with-pos?
+      #f ; continue-with-val?
+      (lambda (pos val) (not (char=? val end))))))) ; continue-after-pos+val?
+
 (module+ test
-  (check-equal? (for/string ([ch (in-list '(#\a #\b #\c #\d))]) ch) "abcd")
+  (check-equal? (for/string ([ch (in-char-range #\a #\d)]) ch) "abcd")
   (check-equal? (for/string #:length (string-length "abcd") ([ch (in-list '(#\a #\b #\c #\d))]) (char-upcase ch)) "ABCD")
   (check-equal? (for/string ([i (in-range 3)]) "AA") "AAAAAA")
-  (check-equal? (for/bytes ([ch (in-list '(#\a #\b #\c #\d))]) (char->integer ch)) #"abcd")
-  (check-equal? (for/bytes #:length 4 ([ch (in-list '(#\a #\b #\c #\d))]) (char->integer (char-upcase ch))) #"ABCD")
+  (check-equal? (for/bytes ([ch (in-char-range #\a #\d)]) (char->integer ch)) #"abcd")
+  (check-equal? (for/bytes #:length 4 ([ch (in-char-range #\a #\d)]) (char->integer (char-upcase ch))) #"ABCD")
 
   (check-equal? (for/min ([n (in-range 1 10)]) (* n 2)) 2)
   (check-equal? (for/max ([n (in-range 1 11)]) (* n 2)) 20)
@@ -221,5 +237,4 @@
                 '(a 1 b 2 c 3))
 
   (check-equal? (for/count ([i (in-range 1 11)]) (even? i)) 5)
-
   )
