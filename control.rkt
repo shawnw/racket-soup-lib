@@ -121,6 +121,17 @@
                 (let* ([var.name var.incr] ...)
                   (loop var.name ...))))))))
 
+(define-syntax-parse-rule (if-let ((name:id value:expr) ...) true-case:expr false-case:expr)
+  (let ((name value) ...)
+    (if (and name ...)
+        true-case
+        false-case)))
+
+(define-syntax-parse-rule (when-let ((name:id value:expr) ...) body:expr ...+)
+  (let ((name value) ...)
+    (when (and name ...)
+      body ...)))
+
 (module+ test
   (require rackunit)
 
@@ -165,4 +176,9 @@
                 '=)
   (check-equal? (prog () 'no-return-value) (void))
   (check-true (prog (x) (return (void? x))))
+
+
+  (check-true (if-let ((a #t) (b #t)) b #f))
+  (check-false (if-let ((a #t) (b #f)) #t b))
+  (check-true (when-let ((a #t) (b #t)) 1 2 b))
   )
