@@ -2,7 +2,7 @@
 
 (require syntax/parse/define srfi/210
          (for-syntax racket/base racket/list))
-(provide let/comp lret lret* named-let-values
+(provide let/comp lret lret* named-let-values if-let when-let
          block return return-from do do* dotimes dolist prog prog*)
 
 (define-syntax-parse-rule (let/comp (~optional (~seq #:prompt prompt-tag:expr)) k:id body:expr ...+)

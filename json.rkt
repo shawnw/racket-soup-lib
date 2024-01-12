@@ -1,6 +1,7 @@
 #lang racket/base
 
-(require json racket/generic (for-syntax racket/base racket/syntax syntax/parse))
+(require json racket/generic
+         (for-syntax racket/base racket/syntax syntax/parse (only-in "control.rkt" if-let)))
 (module+ test (require rackunit))
 
 (provide gen:struct->jsexpr ->jsexpr struct->jsexpr? json-match)
@@ -23,10 +24,9 @@
           (syntax-e (car pat))
           pat)))
   (define (compile-clause pred? jsexpr clause)
-    (let ([pat (syntax->list (car clause))])
-      (if pat
+    (if-let ([pat (syntax->list (car clause))])
           #`((#,pred? #,jsexpr) (let ([#,(cadr pat) #,jsexpr]) #,@(cdr clause)))
-          #`((#,pred? #,jsexpr) #,@(cdr clause)))))
+          #`((#,pred? #,jsexpr) #,@(cdr clause))))
   (define (compile-clauses jsexpr clauses-stx)
     (let loop ([clauses (syntax->list clauses-stx)]
                [string-clause #f] [number-clause #f] [array-clause #f] [object-clause #f]
