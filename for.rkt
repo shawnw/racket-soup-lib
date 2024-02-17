@@ -1,12 +1,13 @@
 #lang racket/base
 
-(require syntax/parse/define racket/contract racket/fixnum racket/unsafe/ops
+(require syntax/parse/define racket/contract racket/fixnum racket/function racket/unsafe/ops
          (for-syntax racket/base syntax/for-body))
 (module+ test (require rackunit))
 (provide for/string for*/string for/bytes for*/bytes for/max for*/max for/min for*/min
          for/list/mv for*/list/mv for/count for*/count
          (contract-out
-          [in-char-range (-> char? char? sequence?)]))
+          [in-char-range (-> char? char? sequence?)]
+          [in-conses (-> list? sequence?)]))
 
 (define-syntax-parse-rule (for/string (~optional (~seq #:length slen:expr)) clauses body ... tail-expr)
   #:with original this-syntax
@@ -221,6 +222,20 @@
       #f ; continue-with-val?
       (lambda (pos val) (not (char=? val end))))))) ; continue-after-pos+val?
 
+(define (in-conses list)
+  (make-do-sequence
+   (lambda ()
+     (values
+      values ; pos->element
+      #f ; early-next-pos
+      cdr ; next-pos
+      list ; initial position
+      (negate null?) ; continue with pos?
+      #f ; continue with val?
+      #f ; contine-after-pos+val?
+      ))))
+
+
 (module+ test
   (check-equal? (for/string ([ch (in-char-range #\a #\d)]) ch) "abcd")
   (check-equal? (for/string #:length (string-length "abcd") ([ch (in-list '(#\a #\b #\c #\d))]) (char-upcase ch)) "ABCD")
@@ -237,4 +252,8 @@
                 '(a 1 b 2 c 3))
 
   (check-equal? (for/count ([i (in-range 1 11)]) (even? i)) 5)
+
+
+  (check-equal? (for/list ([x (in-conses '(1 2 3))]) (cons 'foo x))
+                '((foo 1 2 3) (foo 2 3) (foo 3)))
   )

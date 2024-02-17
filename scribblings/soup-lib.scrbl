@@ -154,6 +154,12 @@ Returns a sequence that iterates over the given (inclusive) range of characters.
 
 }
 
+@defproc[(in-conses [list list?]) sequence?]{
+
+ Returns a sequence that iterates over the successive pairs of the given list (Instead of the values stored in the cars like @code{in-list}).
+
+}
+
 @section{Hash Table functions}
 
 @defmodule[soup-lib/hash]
