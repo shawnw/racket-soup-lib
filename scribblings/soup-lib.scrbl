@@ -822,3 +822,19 @@ See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/m_prog_.ht
  Returns a newly allocated copy of the given range of the fxvector, sorted in ascending order.
 
 }
+
+@section{I/O functions}
+
+@defmodule[soup-lib/port]
+
+@defproc[(read-bytes-up-to [port input-port?] [delim byte?]) (or/c bytes? eof-object?)]{
+
+ Like @code{read-bytes-line} but allows a custom delimiter byte.
+
+}
+
+@defproc[(read-string-up-to [port input-port?] [delim char?]) (or/c string? eof-object?)]{
+
+ Like @code{read-line} but allows a custom delimiter character.
+
+}
