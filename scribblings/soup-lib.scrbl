@@ -219,60 +219,60 @@ Returns a sequence that iterates over the given (inclusive) range of characters.
 
 @subsection{Common Lisp functions}
 
-Stuff from the @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/c_conses.htm"]{cons dictionary} without Racket or SRFI-1 equivalents.
+Stuff from the @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/c_conses.htm"]{cons dictionary} without Racket or SRFI-1 equivalents.
 as well as the @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md"]{Serapeum library} and others. Sometimes with better names.
 
 @defproc[(subst [new any/c] [old any/c] [tree any/c] [#:key key (-> any/c any/c) identity] [#:test test (-> any/c any/c any/c) eqv?]) any/c]{
 
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_substc.htm"]{Common Lisp @racket{subst}}.
+ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/f_substc.htm"]{Common Lisp @racket{subst}}.
 
 }
 
 @defproc[(subst-if [new any/c] [pred? (-> any/c any/c)] [tree any/c] [#:key key (-> any/c any/c) identity]) any/c]{
 
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_substc.htm"]{Common Lisp @racket{subst-if}}.
+ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/f_substc.htm"]{Common Lisp @racket{subst-if}}.
 
 }
 
 @defproc[(adjoin [elem any/c] [list list?] [#:key key (-> any/c any/c) identity] [#:test test (-> any/c any/c any/c) eqv?]) list?]{
 
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_adjoin.htm"]{Common Lisp @racket{adjoin}}.
+ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/f_adjoin.htm"]{Common Lisp @racket{adjoin}}.
 
 }
 
 @defproc[(maplist [proc procedure?] [list list?] ...+) list?]{
 
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_mapc_.htm"]{Common Lisp @racket{maplist}}.
+ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/f_mapc_.htm"]{Common Lisp @racket{maplist}}.
 
 }
 
 @defproc[(append-maplist [proc procedure?] [list list?] ...+) list?]{
 
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_mapc_.htm"]{Common Lisp @racket{mapcon}}.
+ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/f_mapc_.htm"]{Common Lisp @racket{mapcon}}.
 
 }
 
 @defproc[(tail? [obj any/c] [list (or/c pair? null?)]) boolean?]{
 
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_ldiffc.htm"]{Common Lisp @racket{tailp}}.
+ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/f_ldiffc.htm"]{Common Lisp @racket{tailp}}.
 
 }
 
 @defproc[(ldiff [list (or/c pair? null?)] [obj any/c] ) (or/c pair? null?)]{
 
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_ldiffc.htm"]{Common Lisp @racket{ldiff}}.
+ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/f_ldiffc.htm"]{Common Lisp @racket{ldiff}}.
 
 }
 
 @defproc[(copy-tree [tree any/c]) any/c]{
 
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_cp_tre.htm"]{Common Lisp @racket{copy-tree}}.
+ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/f_cp_tre.htm"]{Common Lisp @racket{copy-tree}}.
 
 }
 
 @defproc[(tree-equal? [tree1 any/c] [tree2 any/c] [#:test test (-> any/c any/c any/c) eqv?]) boolean?]{
 
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_tree_e.htm"]{Common Lisp @racket{tree-equal}}.
+ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/f_tree_e.htm"]{Common Lisp @racket{tree-equal}}.
 
 }
 
@@ -316,25 +316,25 @@ From @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md
 
 @defproc[(sublis [alist (listof pair?)] [tree any/c] [#:key key (-> any/c any/c) identity] [#:test test (-> any/c any/c any/c) eqv?]) any/c]{
 
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_sublis.htm"]{Common Lisp @racket{sublis}}.
+ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/f_sublis.htm"]{Common Lisp @racket{sublis}}.
 
 }
 
 @defproc[(rassoc [item any/c] [alist (listof pair?)] [#:key key (-> any/c any/c) identity] [#:test test (-> any/c any/c any/c) eqv?]) (or/c pair? #f)]{
 
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_rassoc.htm"]{Common Lisp @racket{rassoc}}.
+ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/f_rassoc.htm"]{Common Lisp @racket{rassoc}}.
 
 }
 
 @defproc[(rassoc-if [pred? (-> any/c any/c)] [alist (listof pair?)] [#:key key (-> any/c any/c) identity]) (or/c pair? #f)]{
 
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_rassoc.htm"]{Common Lisp @racket{rassoc-if}}.
+ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/f_rassoc.htm"]{Common Lisp @racket{rassoc-if}}.
 
 }
 
 @defproc[(pairlis [keys list?] [values list?] [alist any/c '()]) any/c]{
 
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_pairli.htm"]{Common Lisp @racket{pairlis}}.
+ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/f_pairli.htm"]{Common Lisp @racket{pairlis}}.
 
 }
 
@@ -363,25 +363,25 @@ Functions for working on trees made of @code{cons} cells; mostly taken from Comm
 
 @defproc[(copy-tree [tree any/c]) any/c]{
 
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_cp_tre.htm"]{Common Lisp @racket{copy-tree}}.
+ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/f_cp_tre.htm"]{Common Lisp @racket{copy-tree}}.
 
 }
 
 @defproc[(tree-equal? [tree1 any/c] [tree2 any/c] [#:test test (-> any/c any/c any/c) eqv?]) boolean?]{
 
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_tree_e.htm"]{Common Lisp @racket{tree-equal}}.
+ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/f_tree_e.htm"]{Common Lisp @racket{tree-equal}}.
 
 }
 
 @defproc[(subst [new any/c] [old any/c] [tree any/c] [#:key key (-> any/c any/c) identity] [#:test test (-> any/c any/c any/c) eqv?]) any/c]{
 
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_substc.htm"]{Common Lisp @racket{subst}}.
+ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/f_substc.htm"]{Common Lisp @racket{subst}}.
 
 }
 
 @defproc[(subst-if [new any/c] [pred? (-> any/c any/c)] [tree any/c] [#:key key (-> any/c any/c) identity]) any/c]{
 
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/f_substc.htm"]{Common Lisp @racket{subst-if}}.
+ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/f_substc.htm"]{Common Lisp @racket{subst-if}}.
 
 }
 
@@ -718,13 +718,13 @@ Things taken from Common Lisp. Implicit blocks are supported, implicit tagbodies
          #:contracts
          [(name identifier?)]]{
 
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/s_block.htm"]{Common Lisp @code{block}}.
+ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/s_block.htm"]{Common Lisp @code{block}}.
 
 }
 
 @defform*[((return) (return result))]{
 
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/m_return.htm#return"]{Common Lisp @code{return}}.
+ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/m_return.htm#return"]{Common Lisp @code{return}}.
 
 }
 
@@ -732,21 +732,21 @@ Things taken from Common Lisp. Implicit blocks are supported, implicit tagbodies
           #:contracts
           [(name identifier?)]]{
 
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/s_ret_fr.htm#return-from"]{Common Lisp @code{return-from}}.
+ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/s_ret_fr.htm#return-from"]{Common Lisp @code{return-from}}.
 
 }
 
 @defform[(do ((var init incr) ...) (end-case result ...) body ...)]{
 
  Basically, normal Racket @code{do} extended to be in a @code{block} that can be @code{return}ed from early.
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/m_do_do.htm"]{Common Lisp @code{do}} for more.
+ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/m_do_do.htm"]{Common Lisp @code{do}} for more.
 
 }
 
 @defform[(do* ((var init incr) ...) (end-case result ...) body ...)]{
 
  Like @code{do} but with @code{let*} style scoping.
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/m_do_do.htm"]{Common Lisp @code{do*}} for more.
+ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/m_do_do.htm"]{Common Lisp @code{do*}} for more.
 
 }
 
@@ -757,7 +757,7 @@ Things taken from Common Lisp. Implicit blocks are supported, implicit tagbodies
          [(var identifier?)]]{
 
 
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/m_dotime.htm"]{Common Lisp @code{dotimes}}.
+ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/m_dotime.htm"]{Common Lisp @code{dotimes}}.
 
 }
 
@@ -767,7 +767,7 @@ Things taken from Common Lisp. Implicit blocks are supported, implicit tagbodies
          #:contracts
          [(var identifier?)]]{
 
- See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/m_dolist.htm"]{Common Lisp @code{dolist}}.
+ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/m_dolist.htm"]{Common Lisp @code{dolist}}.
 
 }
 
@@ -778,7 +778,7 @@ Things taken from Common Lisp. Implicit blocks are supported, implicit tagbodies
          [(var identifier?)]]{
 
 
-See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/m_prog_.htm"]{Common Lisp @code{prog}}.
+See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/m_prog_.htm"]{Common Lisp @code{prog}}.
 
 }
 
@@ -789,7 +789,7 @@ See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/m_prog_.ht
          [(var identifier?)]]{
 
 
-See @hyperlink["http://www.lispworks.com/documentation/HyperSpec/Body/m_prog_.htm"]{Common Lisp @code{prog*}}.
+See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/m_prog_.htm"]{Common Lisp @code{prog*}}.
 
 }
 
