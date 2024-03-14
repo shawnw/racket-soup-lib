@@ -668,6 +668,20 @@ Like a named @code{let}, but the initial values for @code{id}s are obtained from
   }
 }
 
+@defform[(named-lambda (name kw-formals ...) body ...+)
+         #:contracts
+         [(name identifier?)]]{
+
+ From R2RS; equivalent to
+
+ @codeblock{
+  (letrec ((name (lambda (kw-formals ...) body ...))) name)
+ }
+
+ Also see @code{rec} from @hyperlink["https://srfi.schemers.org/srfi-31/srfi-31.html"]{SRFI-31}.
+
+}
+
 @subsection{Common Lisp forms}
 
 Things taken from Common Lisp. Implicit blocks are supported, implicit tagbodies are not.

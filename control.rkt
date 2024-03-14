@@ -1,9 +1,10 @@
 #lang racket/base
 
 (require syntax/parse/define srfi/210
-         (for-syntax racket/base racket/list))
+         (for-syntax racket/base racket/list syntax/parse/lib/function-header))
 (provide let/comp lret lret* named-let-values if-let when-let
-         block return return-from do do* dotimes dolist prog prog*)
+         block return return-from do do* dotimes dolist prog prog*
+         named-lambda)
 
 (define-syntax-parse-rule (let/comp (~optional (~seq #:prompt prompt-tag:expr)) k:id body:expr ...+)
   (call-with-composable-continuation
@@ -132,6 +133,10 @@
     (when (and name ...)
       body ...)))
 
+(define-syntax-parse-rule (named-lambda hdr:function-header body:expr ...+)
+  (letrec ([hdr.name (lambda hdr.params body ...)])
+    hdr.name))
+
 (module+ test
   (require rackunit)
 
@@ -181,4 +186,7 @@
   (check-true (if-let ((a #t) (b #t)) b #f))
   (check-false (if-let ((a #t) (b #f)) #t b))
   (check-true (when-let ((a #t) (b #t)) 1 2 b))
+
+  (check-equal? ((named-lambda (fib n) (if (= n 1) n (* n (fib (sub1 n))))) 5) 120)
+
   )
