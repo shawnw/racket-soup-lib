@@ -24,11 +24,10 @@
 ; Combine named let with let-values
 (define-syntax (named-let-values stx)
   (syntax-parse stx
-    [(_ name:id ([(var:id ...) producer:expr] ...) body:expr ...+)
+    [(named-let-values name:id ([(var:id ...) producer:expr] ...) body:expr ...+)
      (let ([varnames (append* (map syntax->list (syntax->list #'((var ...) ...))))])
-       #`(local [(define (name #,@varnames) body ...)]
-           (call/mv name producer ...)))]))
-
+       #`(let-values ([(var ...) producer] ...)
+           ((letrec ([name (lambda #,varnames body ...)]) name) #,@varnames)))]))
 
 (define *default-return-prompt* (make-continuation-prompt-tag))
 
