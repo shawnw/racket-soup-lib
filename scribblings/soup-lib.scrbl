@@ -825,7 +825,115 @@ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/m_prog_.h
 
 @section{I/O functions}
 
+Many of these were inspired by the Common Lisp @hyperlink["https://quickref.common-lisp.net/uiop.html#The-uiop_002fstream-package"]{UIOP stream package}.
+
 @defmodule[soup-lib/port]
+
+@defproc[(call-with-input [input (or/c input-port? string? bytes? path? boolean?)] [proc (-> input-port? any)] [#:mode mode (or/c 'text 'binary) 'binary]) any]{
+
+ Opens an input port based on the @code{input} argument's value and passes it to @code{proc}. Strings use string ports, byte strings byte ports, paths file ports,
+ input ports are passed through, and a boolean uses the value of @code{(current-input-port)}. Returns what @code{proc} returns.
+
+}
+
+@defproc[(call-with-output [output (or/c output-port? path-string? boolean?)] [proc (-> output-port? any)]
+                           [#:mode mode (or/c 'binary 'text) 'binary]
+                           [#:exists exists symbol? 'error]
+                           [#:permissions permissions (integer-in 0 65535) #o666]
+                           [#:replace-permissions? replace-permissions? any/c #f]) any]{
+
+Opens an output port based on the @code{output} argument's value and passes it to @code{proc}.
+If given a path or string, treats it as a filename and passes the keyword arguments on to @code{open-output-file}.
+A @code{#t} uses the value of @code{(current-output-port)}. A @code{#f} passes an output string port. Returns what @code{proc} returns except with a @code{#f} @code{output} value,
+where it returns the string written to.
+
+}
+
+@defproc[(call-with-null-input [proc (-> input-port? any)]) any]{
+
+Calls @code{proc} with an input stream that triggers end of file on any attempts to read from it. Returns what @code{proc} returns.
+
+}
+
+@defproc[(with-input-from-null [thunk (-> any)]) any]{
+
+ Calls @code{thunk} with @code{current-input-port} set to a port that triggers end of file on any attempts to read from it. Returns what @code{thunk} returns.
+
+}
+
+@defproc[(call-with-null-output [proc (-> output-port? any)]) any]{
+
+Calls @code{proc} with an output stream that discards anything written to it. Returns what @code{proc} returns.
+
+}
+
+@defproc[(with-output-to-null [thunk (-> any)]) any]{
+
+ Calls @code{thunk} with @code{current-output-port} set to a port that discards anything written to it. Returns what @code{thunk} returns.
+
+}
+
+@defform[(with-input-file (var filename maybe-mode) body ...+)
+         #:grammar [(maybe-mode (code:line) (code:line #:mode mode))]
+         #:contracts
+         [(var identifier?)
+          (filename path-string?)
+          (mode (or/c 'text 'binary))]]{
+
+Binds @code{var} to an input port opened on @code{filename} and executes @code{body ...} with that binding in scope.
+Returns the value(s) of the last expression in @code{body}.
+
+}
+
+@defform[(with-output-file (var filename kw-args ...) body ...+)
+         #:contracts
+         [(var identifier?)
+          (filename path-string?)]]{
+
+ Binds @code{var} to an output port opened on @code{filename} and executes @code{body ...} with that binding in scope.
+ Returns the value(s) of the last expression in @code{body}.
+ Keyword arguments following the filename are passed to @code{open-output-file}.
+
+}
+
+@defform[(with-null-input (var) body ...+)
+         #:contracts [(var indentifier?)]]{
+
+ Binds @code{var} to an input port that returns end of file on any attempts to read from it, and executes @code{body ...} with that binding in scope.
+ Returns the value(s) of the last expression in @code{body}.
+
+}
+
+@defform[(with-null-output (var) body ...+)
+         #:contracts [(var indentifier?)]]{
+
+ Binds @code{var} to an output port that discards any data written to it, and executes @code{body ...} with that binding in scope.
+ Returns the value(s) of the last expression in @code{body}.
+
+}
+
+@defform[(with-input (var input maybe-mode) body ...+)
+         #:grammar [(maybe-mode (code:line) (code:line #:mode mode))]
+         #:contracts
+         [(var identifier?)
+          (input (or/c input-port? string? bytes? path? boolean?))
+          (mode (or/c 'text 'binary))]]{
+
+Binds @code{var} to an input port opened as per @code{call-with-input} and executes @code{body ...} with that binding in scope.
+Returns the value(s) of the last expression in @code{body}.
+
+}
+
+@defform[(with-output (var output kw-args ...) body ...+)
+         #:contracts
+         [(var identifier?)
+          (output (or/c output-port? path-string? boolean?))]]{
+
+ Binds @code{var} to an output port opened as per @code{call-with-output} and executes @code{body ...} with that binding in scope.
+ Returns the value(s) of the last expression in @code{body}, or a string if @code{output} is @code{#f}.
+ Keyword arguments following the filename are passed to @code{open-output-file} when creating a file port.
+
+}
 
 @defproc[(read-bytes-up-to [port input-port?] [delim byte?]) (or/c bytes? eof-object?)]{
 
