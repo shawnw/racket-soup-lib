@@ -1,6 +1,6 @@
 #lang racket/base
 
-(require syntax/parse/define srfi/210
+(require racket/local syntax/parse/define srfi/210
          (for-syntax racket/base racket/list syntax/parse/lib/function-header))
 (provide let/comp lret lret* named-let-values if-let when-let
          block return return-from do do* dotimes dolist prog prog*
@@ -133,7 +133,7 @@
       body ...)))
 
 (define-syntax-parse-rule (named-lambda hdr:function-header body:expr ...+)
-  (letrec ([hdr.name (lambda hdr.params body ...)])
+  (local [(define hdr body ...)]
     hdr.name))
 
 (module+ test
