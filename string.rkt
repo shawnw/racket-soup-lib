@@ -1,6 +1,6 @@
 #lang racket/base
 
-(require racket/contract racket/dict racket/unsafe/ops racket/string racket/vector
+(require racket/contract racket/dict racket/mutability racket/string racket/unsafe/ops racket/vector
          "for.rkt")
 (module+ test (require rackunit))
 
@@ -10,7 +10,7 @@
   [vector->string (-> (vectorof char?) string?)]
   [string-join/vector (->* ((vectorof string?)) (string?) string?)]
   [string-sort (->* (string?) ((-> char? char? any/c)) string?)]
-  [string-sort! (->* ((and/c string? (not/c immutable?))) ((-> char? char? any/c)) void?)]
+  [string-sort! (->* (mutable-string?) ((-> char? char? any/c)) void?)]
   [string-escape (->* (string? (or/c dict? (-> char? (or/c string? #f)))) (exact-nonnegative-integer? exact-nonnegative-integer?) string?)]
   ))
 

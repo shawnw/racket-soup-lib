@@ -1,15 +1,13 @@
 #lang racket/base
 
-(require racket/contract srfi/133 srfi/160/fx racket/unsafe/ops "control.rkt"
+(require racket/contract racket/mutability racket/unsafe/ops
+         srfi/133 srfi/160/fx "control.rkt"
          (for-syntax racket/base))
-
-(define (mutable-vector? v)
-  (and (vector? v) (not (immutable? v))))
 
 (provide
  (contract-out
   [vector-shuffle (->* (vector?) (exact-nonnegative-integer? exact-nonnegative-integer?) vector?)]
-  [vector-shuffle! (->* ((and/c vector? (not/c immutable?))) (exact-nonnegative-integer? exact-nonnegative-integer?) void?)]
+  [vector-shuffle! (->* (mutable-vector?) (exact-nonnegative-integer? exact-nonnegative-integer?) void?)]
   [fxvector-sort! (->* (fxvector?) (exact-nonnegative-integer? exact-nonnegative-integer?) void?)]
   [fxvector-sort (->* (fxvector?) (exact-nonnegative-integer? exact-nonnegative-integer?) fxvector?)]
   ))

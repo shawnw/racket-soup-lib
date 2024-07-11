@@ -1,6 +1,6 @@
 #lang scribble/manual
 @require[@for-label[soup-lib
-                    (except-in racket/base do) racket/contract racket/control racket/function racket/undefined
+                    (except-in racket/base do) racket/contract racket/control racket/function racket/mutability racket/undefined
                     json]]
 
 @title{Soup: A library of useful routines}
@@ -182,7 +182,7 @@ Returns a sequence that iterates over the given (inclusive) range of characters.
 
 }
 
-@defproc[(hash->immutable-hash [htab hash?]) (and/c hash? immutable?)]{
+@defproc[(hash->immutable-hash [htab hash?]) immutable-hash?]{
 
  Returns an immutable version of @code{htab} (If @code{htab} is already immutable, it's returned) using the same
  underlying comparison routine as the original.
@@ -499,7 +499,7 @@ Is there a node (leaf or cons) in @code{tree} that satisfies @code{test}?
 
 }
 
-@defproc[(string-sort! [s (and/c string? (not/c immutable?))] [<? (-> char? char? any/c) char<?]) void?]{
+@defproc[(string-sort! [s mutable-string?] [<? (-> char? char? any/c) char<?]) void?]{
 
  Sorts @code{s} in-place.
 
@@ -804,7 +804,7 @@ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/m_prog_.h
 
 }
 
-@defproc[(vector-shuffle! [vec (and/c vector? (not/c immutable?))] [start exact-nonnegative-integer? 0] [end exact-nonnegative-integer? (vector-length vec)]) void?]{
+@defproc[(vector-shuffle! [vec mutable-vector?] [start exact-nonnegative-integer? 0] [end exact-nonnegative-integer? (vector-length vec)]) void?]{
 
  Shuffles the given range of the mutable vector in-place.
 
