@@ -2,7 +2,7 @@
 
 (require racket/contract racket/function racket/list racket/sequence racket/stxparam racket/unsafe/ops
          syntax/parse/define
-         (only-in srfi/1 append-reverse) data/queue srfi/141
+         (only-in srfi/1 append-reverse) (only-in srfi/1m mlist->list) srfi/117 srfi/141
          (for-syntax racket/base))
 (module+ test (require rackunit))
 (provide
@@ -171,14 +171,13 @@
   (lambda (stx) (raise-syntax-error 'collect "Can't use collect outside of collecting" stx)))
 
 (define-syntax-parse-rule (collecting body:expr ...)
-  (let* ([res (make-queue)]
-         [%collect (lambda elems
-                     (if (null? elems)
-                         (queue->list res)
-                         (for-each (curry enqueue! res) elems)))])
+  (let* ([res (list-queue)]
+         [%collect (case-lambda
+                     [() (mlist->list (list-queue-list res))]
+                     [elems (for-each (curry list-queue-add-back! res) elems)])])
     (syntax-parameterize ([collect (make-rename-transformer #'%collect)])
       ((lambda () body ...))
-      (queue->list res))))
+      (mlist->list (list-queue-list res)))))
 
 (define-syntax-parse-rule (with-collector (collector:id) body:expr ...)
   (with-collectors (collector) body ...))
@@ -186,11 +185,10 @@
 (define-syntax-parse-rule (with-collectors (collector:id ...) body:expr ...)
   (let ([make-collector
          (lambda ()
-           (let ([res (make-queue)])
-             (lambda elems
-               (if (null? elems)
-                   (queue->list res)
-                   (for-each (curry enqueue! res) elems)))))])
+           (let ([res (list-queue)])
+             (case-lambda
+               [() (mlist->list (list-queue-list res))]
+               [elems (for-each (curry list-queue-add-back! res) elems)])))])
     (let ([collector (make-collector)] ...)
       ((lambda () body ...))
       (values (collector) ...))))
