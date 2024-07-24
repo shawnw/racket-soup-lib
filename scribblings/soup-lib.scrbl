@@ -798,6 +798,12 @@ See @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/m_prog_.h
 
 @defmodule[soup-lib/vector]
 
+@defproc[(vector-map->list [f (-> any/c any/c)] [vec vector?] [stsart exact-nonnegative-integer? 0] [end exact-nonnegative-integer? (vector-length vec)]) vector?]{
+
+Like @code{vector-map}, but returns a list instead of a vector.
+
+}
+
 @defproc[(vector-shuffle [vec vector?] [start exact-nonnegative-integer? 0] [end exact-nonnegative-integer? (vector-length vec)]) vector?]{
 
  Returns a newly allocated copy of the given range of @code{vec}, shuffled in random order.

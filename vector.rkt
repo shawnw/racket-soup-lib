@@ -3,18 +3,24 @@
 (require racket/contract racket/mutability racket/unsafe/ops
          srfi/133 srfi/160/fx "control.rkt"
          (for-syntax racket/base))
+(module+ test (require rackunit))
 
 (provide
  (contract-out
+  [vector-map->list (->* ((-> any/c any/c) vector?) (exact-nonnegative-integer? exact-nonnegative-integer?) list?)]
   [vector-shuffle (->* (vector?) (exact-nonnegative-integer? exact-nonnegative-integer?) vector?)]
   [vector-shuffle! (->* (mutable-vector?) (exact-nonnegative-integer? exact-nonnegative-integer?) void?)]
   [fxvector-sort! (->* (fxvector?) (exact-nonnegative-integer? exact-nonnegative-integer?) void?)]
   [fxvector-sort (->* (fxvector?) (exact-nonnegative-integer? exact-nonnegative-integer?) fxvector?)]
   ))
 
+(define (vector-map->list f vec [start 0] [end (vector-length vec)])
+  (for/list ([elem (in-vector vec start end)])
+    (f elem)))
+
 (define (vector-shuffle vec [start 0] [end (vector-length vec)])
   (lret ([copy (vector-copy vec start end)])
-    (vector-shuffle! copy start end)))
+    (vector-shuffle! copy)))
 
 (define (vector-shuffle! vec [start 0] [end (vector-length vec)])
   (for ([i (in-inclusive-range (- end 1) start -1)])
@@ -88,3 +94,9 @@
   (lret ([new-fxv (fxvector-copy fxv start end)])
     (fxvector-sort! new-fxv)))
 
+
+(module+ test
+  (check-equal? (vector-map->list add1 '#(1 2 3)) '(2 3 4))
+  (check-equal? (fxvector-sort (fxvector 5 -1 2 3 9)) (fxvector -1 2 3 5 9))
+  (check-equal? (fxvector-sort (fxvector 5 -1 2 3 9) 0 3) (fxvector -1 2 5))
+  )
