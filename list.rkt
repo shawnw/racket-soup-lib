@@ -2,7 +2,7 @@
 
 (require racket/contract racket/function racket/list racket/sequence racket/stxparam racket/unsafe/ops
          syntax/parse/define
-         (only-in srfi/1 append-reverse) (only-in srfi/1m mlist->list) srfi/117 srfi/141
+         (only-in srfi/1 append-reverse) (only-in srfi/1m mlist->list) srfi/117 srfi/141 srfi/239
          (for-syntax racket/base))
 (module+ test (require rackunit))
 (provide
@@ -46,9 +46,10 @@
       (maplists proc lists)))
 
 (define (maplist-1 proc list)
-  (if (null? list)
-      '()
-      (cons (proc list) (maplist-1 proc (cdr list)))))
+  (list-case list
+    [() '()]
+    [(_ . rest)
+     (cons (proc list) (maplist-1 proc rest))]))
 
 (define (maplists proc lists)
   (if (any-null? lists)
@@ -133,9 +134,10 @@
       (cons x y)))
 
 (define (copy-tree tree)
-  (if (pair? tree)
-      (cons (copy-tree (unsafe-car tree)) (copy-tree (unsafe-cdr tree)))
-      tree))
+  (list-case tree
+    [(head . rest) (cons (copy-tree head) (copy-tree rest))]
+    [() '()]
+    [_ tree]))
 
 (define (tree-equal? tree1 tree2 #:test [test eqv?])
   (cond
@@ -195,11 +197,13 @@
 
 (define (alist-map proc alist)
   (for/list ([elem (in-list alist)])
-    (cons (car elem) (proc (car elem) (cdr elem)))))
+    (list-case elem
+      [(key . value) (cons key (proc key value))])))
 
 (define (alist-for-each proc alist)
   (for ([elem (in-list alist)])
-    (proc (car elem) (cdr elem))))
+    (list-case elem
+      [(key . value) (proc key value)])))
 
 (module+ test
   (check-equal? (lmax '(1 2 3 4 5)) 5)
