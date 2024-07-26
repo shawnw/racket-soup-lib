@@ -1,6 +1,6 @@
 #lang racket/base
 
-(require syntax/parse/define racket/contract racket/fixnum racket/function racket/unsafe/ops
+(require syntax/parse/define racket/contract racket/fixnum racket/function racket/sequence racket/unsafe/ops
          (for-syntax racket/base syntax/for-body))
 (module+ test (require rackunit))
 (provide for/string for*/string for/bytes for*/bytes for/max for*/max for/min for*/min
@@ -210,30 +210,21 @@
 
 (define (in-char-range start end)
   (make-do-sequence
-   (lambda ()
-     (values
-      integer->char ; pos->element
-      #f ; early-next-pos
-      (if (char<=? start end) ; next-pos
-          add1
-          sub1)
-      (char->integer start) ; initial position
-      #f ; continue-with-pos?
-      #f ; continue-with-val?
-      (lambda (pos val) (not (char=? val end))))))) ; continue-after-pos+val?
+   (thunk
+    (initiate-sequence
+     #:pos->element integer->char
+     #:next-pos (if (char<=? start end) add1 sub1)
+     #:init-pos (char->integer start)
+     #:continue-after-pos+val? (lambda (pos val) (not (char=? val end)))))))
 
 (define (in-conses list)
   (make-do-sequence
-   (lambda ()
-     (values
-      values ; pos->element
-      #f ; early-next-pos
-      cdr ; next-pos
-      list ; initial position
-      (negate null?) ; continue with pos?
-      #f ; continue with val?
-      #f ; contine-after-pos+val?
-      ))))
+   (thunk
+    (initiate-sequence
+     #:pos->element values
+     #:next-pos cdr
+     #:init-pos list
+     #:continue-with-pos? (negate null?)))))
 
 
 (module+ test
