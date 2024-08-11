@@ -189,6 +189,12 @@ Returns a sequence that iterates over the given (inclusive) range of characters.
 
 }
 
+@defproc[(eq-func->hash [eq (or/c eq? eqv? equal? equal-always?)]) immutable-hash?]{
+
+ Return a new empty hash table corresponding to the given equality predicate.
+
+}
+
 @defform[(do-hash-table (key value table maybe-return) body ...+)
          #:grammar [(maybe-return (code:line) (code:line expr))]
          #:contracts [(key identifier?)
