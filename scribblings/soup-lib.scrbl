@@ -189,6 +189,18 @@ Returns a sequence that iterates over the given (inclusive) range of characters.
 
 }
 
+@defform[(do-hash-table (key value table maybe-return) body ...+)
+         #:grammar [(maybe-return (code:line) (code:line expr))]
+         #:contracts [(key identifier?)
+                      (value identifier?)
+                      (table hash?)]]{
+
+ Iterate over the elements of a hash table, executing the body for each. From
+ @hyperlink["https://github.com/ruricolist/serapeum/blob/master/REFERENCE.md#do-hash-table-key-value-table-optional-return-body-body"]{Serapeum @racket{do-hash-table}}.
+
+
+}
+
 @section{List-related functions}
 
 @defmodule[soup-lib/list]
