@@ -1,8 +1,9 @@
 #lang racket/base
 
 (provide with-slots)
-(require (for-syntax racket/base racket/list syntax/datum syntax/parse syntax/parse/class/struct-id
+(require (for-syntax racket/base racket/list racket/syntax syntax/datum syntax/parse syntax/parse/class/struct-id syntax/transformer
                      (only-in "control.rkt" if-let when-let)))
+(module+ test (require rackunit))
 
 (begin-for-syntax
   (define-syntax-class slot-id
@@ -25,15 +26,30 @@
             [setters (for/list ([pos (in-list slot-positions)]) (list-ref mutators pos))]
             [make-transformer-stx
              (lambda (obj getter setter)
-               #`(make-set!-transformer
-                  (lambda (stx)
-                    (syntax-parse stx #:literals (set!)
-                      [(set! name:id val:expr)
-                       #,(if (syntax-e setter) #`#'(#,setter #,obj val) #'(raise-syntax-error 'with-slots "not a mutable field" #'name))]
-                      [_:id #'(#,getter #,obj)]))))])
+               #`(make-variable-like-transformer
+                  #'(#,getter #,obj)
+                  #,(if (syntax-e setter) #`#'(lambda (v) (#,setter #,obj v)) #f)))
+             #;(lambda (obj getter setter)
+                 #`(make-set!-transformer
+                    (lambda (stx)
+                      (syntax-parse stx #:literals (set!)
+                        [(set! name:id val:expr)
+                         #,(if (syntax-e setter) #`#'(#,setter #,obj val) #'(raise-syntax-error 'with-slots "not a mutable field" #'name))]
+                        [_:id #'(#,getter #,obj)]))))])
        #`(let ((obj instance))
            (let-syntax #,(for/list ([name (in-list (syntax->list #'(slot.var ...)))]
                                     [getter (in-list getters)]
                                     [setter (in-list setters)])
                            (list name (make-transformer-stx #'obj getter setter)))
              body ...)))]))
+
+(module+ test
+  (struct example (foo bar [baz #:mutable]) #:transparent)
+  (define demo (example 1 2 3))
+  (with-slots example (foo (biff bar) baz) demo
+    (check-eqv? foo 1)
+    (check-eqv? biff 2)
+    (check-eqv? baz 3)
+    (set! baz 'b)
+    (check-eqv? baz 'b)
+    (check-equal? demo (example 1 2 'b))))
