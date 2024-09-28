@@ -178,29 +178,34 @@
     (define n (let () post-body ...))
     (if (< n current-min) n current-min)))
 
+;;; difference lists
+(define ((list->dlist list-a) list-b) (append list-a list-b))
+(define (dlist-append f g) (compose1 f g))
+(define (dlist->list dl) (dl '()))
+
 (define-syntax-parse-rule (for/list/mv clauses body ... tail-expr)
   #:with original this-syntax
   #:with ((pre-body ...) (post-body ...)) (split-for-body this-syntax #'(body ... tail-expr))
-  (for/foldr/derived original
-    ([result '()])
+  (for/fold/derived original
+    ([result (list->dlist '())] #:result (dlist->list result))
     clauses
     pre-body ...
     (call-with-values
      (lambda () post-body ...)
      (lambda vals
-       (append vals result)))))
+       (dlist-append result (list->dlist vals))))))
 
 (define-syntax-parse-rule (for*/list/mv clauses body ... tail-expr)
   #:with original this-syntax
   #:with ((pre-body ...) (post-body ...)) (split-for-body this-syntax #'(body ... tail-expr))
-  (for*/foldr/derived original
-    ([result '()])
+  (for*/fold/derived original
+    ([result (list->dlist '())] #:result (dlist->list result))
     clauses
     pre-body ...
     (call-with-values
      (lambda () post-body ...)
      (lambda vals
-       (append vals result)))))
+       (dlist-append result (list->dlist vals))))))
 
 (define-syntax-parse-rule (for/count clauses body ... tail-expr)
   #:with original this-syntax
