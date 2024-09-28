@@ -970,3 +970,20 @@ Returns the value(s) of the last expression in @code{body}.
  Like @code{read-line} but allows a custom delimiter character.
 
 }
+
+@section{struct utilities}
+
+@defmodule[soup-lib/struct]
+
+@defform[(with-slots struct-type (slot-entry ...) instance-form body ...+)
+         #:grammar
+         [(slot-entry (code:line slot-name) (code:line (variable-name slot-name)))]
+         #:contracts
+         [(slot-name identifier?)
+          (variable-name identifier?)
+         ]]{
+
+ Much like @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/m_w_slts.htm"]{Common Lisp @code{with-slots}}, for Racket structure types.
+ Unlike the Common Lisp one, the structure type has to explicitly supplied. @code{set!}ing the field names sets the field in the structure if it's a mutable one, and is a syntax error otherwise.
+
+}
