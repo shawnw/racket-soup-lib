@@ -160,6 +160,19 @@ Returns a sequence that iterates over the given (inclusive) range of characters.
 
 }
 
+@defproc[(in-regexp-matches [re (or/c regexp? byte-regexp? string? bytes?)] [source (or/c string? bytes?)]) sequence?]{
+
+ Matches the regular expression against the string and returns a list of positions for each match as in @code{regexp-match}.
+
+}
+
+
+@defproc[(in-regexp-positions [re (or/c regexp? byte-regexp? string? bytes?)] [source (or/c string? bytes?)]) sequence?]{
+
+ Matches the regular expression against the string and returns a list of positions for each match as in @code{regexp-match-positions}.
+
+}
+
 @section{Hash Table functions}
 
 @defmodule[soup-lib/hash]

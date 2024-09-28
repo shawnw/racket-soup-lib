@@ -1,13 +1,29 @@
 #lang racket/base
 
-(require syntax/parse/define racket/contract racket/fixnum racket/function racket/sequence racket/unsafe/ops
+(require syntax/parse/define racket/contract racket/fixnum racket/function racket/match racket/sequence racket/unsafe/ops
          (for-syntax racket/base syntax/for-body))
 (module+ test (require rackunit))
 (provide for/string for*/string for/bytes for*/bytes for/max for*/max for/min for*/min
          for/list/mv for*/list/mv for/count for*/count
          (contract-out
-          [in-char-range (-> char? char? sequence?)]
-          [in-conses (-> list? sequence?)]))
+          ;; These contracts might be overkill
+          [in-regexp-positions (->i ([re (or/c regexp? byte-regexp? string? bytes?)]
+                                     [source (re) (if (or (regexp? re) (string? re))
+                                                      string?
+                                                      bytes?)])
+                                    [_ sequence? #;(sequence/c (cons/c (cons/c exact-nonnegative-integer? exact-nonnegative-integer?)
+                                                                       (listof (or/c (cons/c exact-integer? exact-integer?) #f))))])]
+          [in-regexp-matches (->i ([re (or/c regexp? byte-regexp? string? bytes?)]
+                                   [source (re) (if (or (regexp? re) (string? re))
+                                                    string?
+                                                    bytes?)])
+                                  [_ (source)
+                                     sequence?
+                                     #;(if (string? source)
+                                         (sequence/c (cons/c string? (listof (or/c string? #f))))
+                                         (sequence/c (cons/c bytes? (listof (or/c bytes? f)))))])]
+          [in-char-range (-> char? char? sequence? #;(sequence/c char?))]
+          [in-conses (-> list? sequence? #;(sequence/c list?))]))
 
 (define-syntax-parse-rule (for/string (~optional (~seq #:length slen:expr)) clauses body ... tail-expr)
   #:with original this-syntax
@@ -227,6 +243,28 @@
      #:continue-with-pos? (negate null?)))))
 
 
+(define (in-regexp-matches re s)
+  (define (make-mapper sub)
+    (lambda (positions)
+      (map (lambda (pos)
+             (match pos
+               [(cons start end)
+                (sub s start end)]
+               [#f #f]))
+           positions)))
+  (sequence-map (make-mapper (if (string? s) substring subbytes)) (in-regexp-positions re s)))
+
+(define (in-regexp-positions re s)
+  (define current-position 0)
+  (in-producer
+   (lambda ()
+     (match (regexp-match-positions re s current-position)
+       [#f #f]
+       [(and (cons (cons _ end-pos) _) positions)
+        (set! current-position end-pos)
+        positions]))
+   #f))
+
 (module+ test
   (check-equal? (for/string ([ch (in-char-range #\a #\d)]) ch) "abcd")
   (check-equal? (for/string #:length (string-length "abcd") ([ch (in-list '(#\a #\b #\c #\d))]) (char-upcase ch)) "ABCD")
@@ -244,7 +282,11 @@
 
   (check-equal? (for/count ([i (in-range 1 11)]) (even? i)) 5)
 
-
   (check-equal? (for/list ([x (in-conses '(1 2 3))]) (cons 'foo x))
                 '((foo 1 2 3) (foo 2 3) (foo 3)))
+
+  (check-equal? (for/list ([m (in-regexp-matches  #rx".(..)" "foobar")]) m) '(("foo" "oo") ("bar" "ar")))
+  (check-equal? (for/list ([m (in-regexp-matches  #rx#"...|(dog)" #"foobar")]) m) '((#"foo" #f) (#"bar" #f)))
+
+
   )
