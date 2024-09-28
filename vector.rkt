@@ -1,18 +1,27 @@
 #lang racket/base
 
-(require racket/contract racket/mutability racket/unsafe/ops
+(require racket/contract racket/mutability racket/unsafe/ops (only-in racket/vector vector-set/copy)
          srfi/133 srfi/160/fx "control.rkt"
          (for-syntax racket/base))
 (module+ test (require rackunit))
 
 (provide
  (contract-out
+  [vector-update! (-> mutable-vector? exact-nonnegative-integer? (-> any/c any/c) void?)]
+  [vector-update (-> vector? exact-nonnegative-integer? (-> any/c any/c) vector?)]
   [vector-map->list (->* ((-> any/c any/c) vector?) (exact-nonnegative-integer? exact-nonnegative-integer?) list?)]
   [vector-shuffle (->* (vector?) (exact-nonnegative-integer? exact-nonnegative-integer?) vector?)]
   [vector-shuffle! (->* (mutable-vector?) (exact-nonnegative-integer? exact-nonnegative-integer?) void?)]
   [fxvector-sort! (->* (fxvector?) (exact-nonnegative-integer? exact-nonnegative-integer?) void?)]
   [fxvector-sort (->* (fxvector?) (exact-nonnegative-integer? exact-nonnegative-integer?) fxvector?)]
   ))
+
+
+(define (vector-update! vec i f)
+  (vector-set! vec i (f (vector-ref vec i))))
+
+(define (vector-update vec i f)
+  (vector-set/copy vec i (f (vector-ref vec i))))
 
 (define (vector-map->list f vec [start 0] [end (vector-length vec)])
   (for/list ([elem (in-vector vec start end)])

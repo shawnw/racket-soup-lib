@@ -834,6 +834,19 @@ Like @code{vector-map}, but returns a list instead of a vector.
 
 }
 
+@defproc[(vector-update [vec vector?] [index exact-nonnegative-integer?] [f (-> any/c any/c)]) vector?]{
+
+Return a freshly allocated copy of the vector with the @code{index}th element replaced by the result of calling @code{f} on its old value.
+
+}
+
+@defproc[(vector-update! [vec mutable-vector?] [index exact-nonnegative-integer?] [f (-> any/c any/c)]) void?]{
+
+Set the @code{index}th element of the vector to the result of calling @code{f} on its old value.
+
+}
+
+
 @defproc[(fxvector-sort! [vec fxvector?] [start exact-nonnegative-integer? 0] [end exact-nonnegative-integer? (fxvector-length vec)]) void?]{
 
  Sorts the given range of a fxvector inplace, in ascending order.
