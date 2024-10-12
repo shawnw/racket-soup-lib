@@ -121,16 +121,28 @@
                 (let* ([var.name var.incr] ...)
                   (loop var.name ...))))))))
 
-(define-syntax-parse-rule (if-let ((name:id value:expr) ...) true-case:expr false-case:expr)
-  (let ((name value) ...)
-    (if (and name ...)
-        true-case
-        false-case)))
+(define-syntax (if-let stx)
+  (syntax-parse stx
+    [(_ (name:id value:expr) true-case:expr false-case:expr)
+     #'(let ([name value])
+         (if name
+             true-case
+             false-case))]
+    [(_ ([name:id value:expr] ...) true-case:expr false-case:expr)
+     #'(let ([name value] ...)
+         (if (and name ...)
+             true-case
+             false-case))]))
 
-(define-syntax-parse-rule (when-let ((name:id value:expr) ...) body:expr ...+)
-  (let ((name value) ...)
-    (when (and name ...)
-      body ...)))
+(define-syntax (when-let stx)
+  (syntax-parse stx
+    [(_ (name:id value:expr) body:expr ...+)
+     #'(let ([name value])
+         (when name body ...))]
+    [(_ ([name:id value:expr] ...) body:expr ...+)
+     #'(let ([name value] ...)
+         (when (and name ...)
+           body ...))]))
 
 (define-syntax-parse-rule (named-lambda hdr:function-header body:expr ...+)
   (local [(define hdr body ...)]

@@ -732,16 +732,19 @@ Things taken from Common Lisp. Implicit blocks are supported, implicit tagbodies
 
 }
 
-@defform[(if-let ([id init] ...) true-case false-case)]{
+@defform*[((if-let (id init) true-case false-case)
+           (if-let ([id init] ...) true-case false-case))]{
 
  First binds values to @code{id}s like @code{let}, and if all are truthy, executes @code{true-case}, otherwise @code{false-case}.
  All bindings are visible in both cases. From @hyperlink["https://alexandria.common-lisp.dev/draft/alexandria.html#index-if_002dlet"]{Alexandria}.
 
 }
 
-@defform[(when-let ([id init] ...) body ...+)]{
+@defform*[((when-let (id init) body ...+)
+           (when-let ([id init] ...) body ...+))]{
 
- First binds values to @code{id}s like @code{let}, and if all are truthy, executes @code{body}. Returns the value(s) of the last expression in @code{body}, or @code{void}. From @hyperlink["https://alexandria.common-lisp.dev/draft/alexandria.html#index-when_002dlet"]{Alexandria}.
+ First binds values to @code{id}s like @code{let}, and if all are truthy, executes @code{body}. Returns the value(s) of the last expression in @code{body}, or @code{void}.
+ From @hyperlink["https://alexandria.common-lisp.dev/draft/alexandria.html#index-when_002dlet"]{Alexandria}.
 
 }
 
