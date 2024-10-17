@@ -23,7 +23,8 @@
                                          (sequence/c (cons/c string? (listof (or/c string? #f))))
                                          (sequence/c (cons/c bytes? (listof (or/c bytes? f)))))])]
           [in-char-range (-> char? char? sequence? #;(sequence/c char?))]
-          [in-conses (-> list? sequence? #;(sequence/c list?))]))
+          [in-conses (-> list? sequence? #;(sequence/c list?))]
+          [in-list-sequence (-> sequence? sequence?)]))
 
 (define-syntax-parse-rule (for/string (~optional (~seq #:length slen:expr)) clauses body ... tail-expr)
   #:with original this-syntax
@@ -270,6 +271,22 @@
         positions]))
    #f))
 
+
+(define (in-list-sequence s)
+  (define-values (current-values get-next-elements) (sequence-generate* s))
+  (make-do-sequence
+   (lambda ()
+     (initiate-sequence
+      #:pos->element (lambda (elems)
+                       (define the-elems (car elems))
+                       (if (list? the-elems)
+                           (apply values the-elems)
+                           the-elems))
+      #:init-pos current-values
+      #:next-pos (lambda (elems) (set!-values (current-values get-next-elements) (get-next-elements)) current-values)
+      #:continue-with-pos? (lambda (elems) (not (not elems)))))))
+
+
 (module+ test
   (check-equal? (for/string ([ch (in-char-range #\a #\d)]) ch) "abcd")
   (check-equal? (for/string #:length (string-length "abcd") ([ch (in-list '(#\a #\b #\c #\d))]) (char-upcase ch)) "ABCD")
@@ -292,6 +309,6 @@
 
   (check-equal? (for/list ([m (in-regexp-matches  #rx".(..)" "foobar")]) m) '(("foo" "oo") ("bar" "ar")))
   (check-equal? (for/list ([m (in-regexp-matches  #rx#"...|(dog)" #"foobar")]) m) '((#"foo" #f) (#"bar" #f)))
-
+  (check-equal? (for/list ([(i j) (in-list-sequence (in-slice 2 (in-range 6)))]) (list i j)) '((0 1) (2 3) (4 5)))
 
   )

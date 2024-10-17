@@ -160,6 +160,12 @@ Returns a sequence that iterates over the given (inclusive) range of characters.
 
 }
 
+@defproc[(in-list-sequence [seq sequence?]) sequence?]{
+
+Basically the opposite of @code{in-values-sequence}; takes a sequence that returns a list and returns those elemens as separate values.
+
+}
+
 @defproc[(in-regexp-matches [re (or/c regexp? byte-regexp? string? bytes?)] [source (or/c string? bytes?)]) sequence?]{
 
  Matches the regular expression against the string and returns a list of positions for each match as in @code{regexp-match}.
