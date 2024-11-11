@@ -99,23 +99,21 @@
     (pattern (name:id init:expr) #:attr incr #'name)
     (pattern (name:id init:expr incr:expr))))
 
-(define-syntax-parse-rule (do (var:do-var ...) (end-test:expr (~optional result:expr)) body:expr ...)
+(define-syntax-parse-rule (do (var:do-var ...) (end-test:expr (~optional (~seq result:expr ...) #:defaults ([(result 1) ((void))]))) body:expr ...)
   (block nil
          (let loop ([var.name var.init] ...)
            (cond
-             (end-test
-              (~? result (void)))
+             (end-test result ... )
              (else
               body ...
               (loop var.incr ...))))))
 
-(define-syntax-parse-rule (do* (var:do-var ...) (end-test:expr (~optional result:expr)) body:expr ...)
+(define-syntax-parse-rule (do* (var:do-var ...) (end-test:expr (~optional (~seq result:expr ...) #:defaults ([(result 1) ((void))]))) body:expr ...)
   (block nil
          (let* ([var.name var.init] ...)
            (let loop ([var.name var.name] ...)
              (cond
-               (end-test
-                (~? result (void)))
+               (end-test result ... )
                (else
                 body ...
                 (let* ([var.name var.incr] ...)
