@@ -1022,3 +1022,27 @@ Returns the value(s) of the last expression in @code{body}.
  Unlike the Common Lisp one, the structure type has to explicitly supplied. @code{set!}ing the field names sets the field in the structure if it's a mutable one, and is a syntax error otherwise.
 
 }
+
+@section{Regular Expression utilities}
+
+@defmodule[soup-lib/regexp]
+
+@defform[(register-groups-bind (binding ...)
+                               (pattern input maybe-start maybe-end)
+                               body ...+)
+         #:grammar
+         [(binding (code:line var) (code:line (fn var ...)))
+          (maybe-start (code:line) (code:line #:start start-pos))
+          (maybe-end (code:line) (code:line #:end end-pos))]
+         #:contracts
+         [(pattern (or/c regexp? byte-regexp? string? bytes?))
+          (input (or/c string? bytes? path? input-port?))
+          (start-pos exact-nonnegative-integer?)
+          (end-pos (or/c exact-nonnegative-integer? #f))
+          (var (or/c identifier? #f))
+          (fn (or/c (-> string? any/c) (-> bytes? any/c)))]]{
+
+ Like @hyperlink["https://edicl.github.io/cl-ppcre/#register-groups-bind"]{@code{register-groups-bind}} from the Common Lisp
+ @hyperlink["https://edicl.github.io/cl-ppcre/"]{cl-ppcre library}.
+ 
+}
