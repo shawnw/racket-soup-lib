@@ -250,27 +250,10 @@
 
 
 (define (in-regexp-matches re s)
-  (define (make-mapper sub)
-    (lambda (positions)
-      (map (lambda (pos)
-             (match pos
-               [(cons start end)
-                (sub s start end)]
-               [#f #f]))
-           positions)))
-  (sequence-map (make-mapper (if (string? s) substring subbytes)) (in-regexp-positions re s)))
+  (in-list (regexp-match* re s #:match-select values)))
 
 (define (in-regexp-positions re s)
-  (define current-position 0)
-  (in-producer
-   (lambda ()
-     (match (regexp-match-positions re s current-position)
-       [#f #f]
-       [(and (cons (cons _ end-pos) _) positions)
-        (set! current-position end-pos)
-        positions]))
-   #f))
-
+  (in-list (regexp-match-positions* re s #:match-select values)))
 
 (define (in-list-sequence s)
   (define-values (current-values get-next-elements) (sequence-generate* s))
