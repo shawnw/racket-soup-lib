@@ -1044,5 +1044,40 @@ Returns the value(s) of the last expression in @code{body}.
 
  Like @hyperlink["https://edicl.github.io/cl-ppcre/#register-groups-bind"]{@code{register-groups-bind}} from the Common Lisp
  @hyperlink["https://edicl.github.io/cl-ppcre/"]{cl-ppcre library}.
- 
+
+}
+
+@defform[(do-register-groups (binding ...)
+                             (pattern input maybe-result maybe-start maybe-end)
+                              body ...+)
+         #:grammar
+         [(maybe-result (code:line) (code:line result))]]{
+
+Like @hyperlink["https://edicl.github.io/cl-ppcre/#do-register-groups"]{@code{do-register-groups}} from cl-ppcre. For every match of @code{pattern}
+in @code{input}, bind the capturing subgroups and evaluate @code{body}. Optionally return @code{result} afterwards.
+
+This and the following do macros are wrapped in implicit @code{block}s and can be @code{return}ed from.
+
+}
+
+@defform[(do-scans (match-start match-end reg-starts reg-ends pattern input maybe-result maybe-start maybe-end)
+                    body ...+)]{
+
+Like @hyperlink["https://edicl.github.io/cl-ppcre/#do-scans"]{@code{do-scans}} from cl-ppcre. The vectors that store the capturing group positions
+are allowed to be reused between executions of @code{body}.
+
+}
+
+@defform[(do-matches (match-start match-end pattern input maybe-result maybe-start maybe-end)
+                      body ...+)]{
+
+Like @hyperlink["https://edicl.github.io/cl-ppcre/#do-matches"]{@code{do-matches}} from cl-ppcre.
+
+}
+
+@defform[(do-matches-as-strings (match-var pattern input maybe-result maybe-start maybe-end)
+                                 body ...+)]{
+
+Like @hyperlink["https://edicl.github.io/cl-ppcre/#do-matches-as-strings"]{@code{do-matches-as-strings}} from cl-ppcre.
+
 }
