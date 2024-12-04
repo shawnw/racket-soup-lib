@@ -254,6 +254,13 @@ Basically the opposite of @code{in-values-sequence}; takes a sequence that retur
 
 }
 
+@defproc[(map-into-vector! [vec mutable-vector?] [f procedure?] [lst list?] ...+) exact-nonnegative-integer?]{
+
+Like @code{map}, but fills the elements of the given vector instead of returning a list. The vector must have at least as many elements
+ as the shortest list. Returns that number of elements - the last index set plus one, basically.
+
+}
+
 @subsection{Common Lisp functions}
 
 Stuff from the @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/c_conses.htm"]{cons dictionary} without Racket or SRFI-1 equivalents.

@@ -1,8 +1,9 @@
 #lang racket/base
 
-(require racket/contract racket/function racket/list racket/sequence racket/stxparam racket/unsafe/ops
+(require racket/contract racket/function racket/list racket/mutability racket/sequence racket/stxparam racket/unsafe/ops
          syntax/parse/define
          (only-in srfi/1 append-reverse) (only-in srfi/1m mlist->list) srfi/117 srfi/141 srfi/239
+         "control.rkt"
          (for-syntax racket/base))
 (module+ test (require rackunit))
 (provide
@@ -34,6 +35,7 @@
   [tree-equal? (->* (any/c any/c) (#:test (-> any/c any/c any/c)) boolean?)]
   [alist-map (-> (-> any/c any/c any/c) (listof pair?) (listof pair?))]
   [alist-for-each (-> (-> any/c any/c any) (listof pair?) void?)]
+  [map-into-vector! (-> mutable-vector? (unconstrained-domain-> any/c) list? list? ... exact-nonnegative-integer?)]
   ))
 
 (define (any-null? lol) (ormap null? lol))
@@ -205,6 +207,15 @@
     (list-case elem
       [(key . value) (proc key value)])))
 
+(define (map-into-vector! vec f list1 . lists)
+  (if-let ([last-index
+            (for/last ([i (in-naturals)]
+                       [vals (in-values-sequence (apply in-parallel (in-list list1) (map in-list lists)))])
+              (vector-set! vec i (apply f vals))
+              i)])
+          (add1 last-index)
+          0))
+
 (module+ test
   (check-equal? (lmax '(1 2 3 4 5)) 5)
   (check-equal? (lmax '("a" "z" "b") string<?) "z")
@@ -337,4 +348,10 @@
                     (z 3)))
                  list)
                 '((1) (2) (3)))
+
+
+  (define vec (make-vector 5 #f))
+  (check-equal? (map-into-vector! vec + '(1 2 3) '(1 2 3 4 5)) 3)
+  (check-equal? vec '#(2 4 6 #f #f))
+  
   )
