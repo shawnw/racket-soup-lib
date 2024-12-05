@@ -35,6 +35,7 @@
   [tree-equal? (->* (any/c any/c) (#:test (-> any/c any/c any/c)) boolean?)]
   [alist-map (-> (-> any/c any/c any/c) (listof pair?) (listof pair?))]
   [alist-for-each (-> (-> any/c any/c any) (listof pair?) void?)]
+  [map-into-vector (-> (unconstrained-domain-> any/c) list? list? ... vector?)]
   [map-into-vector! (-> mutable-vector? (unconstrained-domain-> any/c) list? list? ... exact-nonnegative-integer?)]
   ))
 
@@ -206,6 +207,10 @@
   (for ([elem (in-list alist)])
     (list-case elem
       [(key . value) (proc key value)])))
+
+(define (map-into-vector f list1 . lists)
+  (for/vector ([vals (in-values-sequence (apply in-parallel (in-list list1) (map in-list lists)))])
+              (apply f vals)))
 
 (define (map-into-vector! vec f list1 . lists)
   (if-let ([last-index

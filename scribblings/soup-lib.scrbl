@@ -254,6 +254,12 @@ Basically the opposite of @code{in-values-sequence}; takes a sequence that retur
 
 }
 
+@defproc[(map-into-vector [f procedure?] [lst list?] ...+) vector?]{
+
+Like @code{map}, but returns a newly allocated vector instead of a new list.
+
+}
+
 @defproc[(map-into-vector! [vec mutable-vector?] [f procedure?] [lst list?] ...+) exact-nonnegative-integer?]{
 
 Like @code{map}, but fills the elements of the given vector instead of returning a list. The vector must have at least as many elements
