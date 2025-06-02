@@ -1,6 +1,6 @@
 #lang scribble/manual
 @require[@for-label[soup-lib
-                    (except-in racket/base do) racket/contract racket/control racket/function racket/mutability racket/undefined
+                    (except-in racket/base do) racket/contract racket/control racket/function racket/list racket/mutability racket/stream racket/undefined
                     json]]
 
 @title{Soup: A library of useful routines}
@@ -1094,3 +1094,22 @@ Like @hyperlink["https://edicl.github.io/cl-ppcre/#do-matches"]{@code{do-matches
 Like @hyperlink["https://edicl.github.io/cl-ppcre/#do-matches-as-strings"]{@code{do-matches-as-strings}} from cl-ppcre.
 
 }
+
+@section{Stream utilities}
+
+@defmodule[soup-lib/stream]
+
+@defproc[(stream-filter-map [f (-> any/c any/c)] [s stream?]) stream?]{
+
+Like @code{filter-map} but for streams. Returns a new stream lazily constructed by calling @code{f} on each element of @code{s}; each non-@code{#f} value returned becomes part
+ of the result stream.
+
+}
+
+@defproc[(stream-append-map [f (-> any/c stream?)] [s stream?]) stream?]{
+
+
+ Like @code{append-map}, but for streams. Each element of the streams returned by calling @code{f} on each element of @code{s} is returned in order in a new stream.
+ If @code{f} returns an infinite stream, or @code{s} is infinite, the resulting stream will also be infinite.
+
+ }
