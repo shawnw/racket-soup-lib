@@ -1,6 +1,7 @@
 #lang scribble/manual
 @require[@for-label[soup-lib
-                    (except-in racket/base do) racket/contract racket/control racket/function racket/list racket/mutability racket/stream racket/undefined
+                    (except-in racket/base do) racket/contract racket/control racket/function racket/list racket/mutability racket/stream
+                    racket/struct-info racket/undefined
                     json]]
 
 @title{Soup: A library of useful routines}
@@ -1033,6 +1034,22 @@ Returns the value(s) of the last expression in @code{body}.
 
  Much like @hyperlink["https://www.lispworks.com/documentation/HyperSpec/Body/m_w_slts.htm"]{Common Lisp @code{with-slots}}, for Racket structure types.
  Unlike the Common Lisp one, the structure type has to explicitly supplied. @code{set!}ing the field names sets the field in the structure if it's a mutable one, and is a syntax error otherwise.
+
+}
+
+@defproc[(make-struct-type* [#:name name symbol?] [#:init-field-count init-field-cnt exact-nonnegative-integer?]
+                            [#:auto-field-count auto-field-cnt exact-nonnegative-integer? 0]
+                            [#:super-type super-type (or/c struct-info? #f) #f]
+                            [#:auto-v auto-v any/c #f]
+                            [#:props props (listof (cons/c struct-type-property? any/c)) '()]
+                            [#:inspector inspector (or/c inspector? #f 'prefab) (current-inspector)]
+                            [#:proc-spec proc-spec (or/c procedure? exact-nonnegative-integer? #f) #f]
+                            [#:immutables immutables (listof exact-nonnegative-integer?) '()]
+                            [#:guard guard (or/c procedure? #f) #f]
+                            [#:constructor-name constructor-name (or/c symbol? #f) #f])
+         (values struct-type? struct-constructor-procedure? struct-predicate-procedure? struct-accessor-procedure? struct-mutator-procedure?)]{
+
+Like @code{make-struct-type} but all the arguments are wrapped in keywords and more of them are optional.
 
 }
 

@@ -1,6 +1,6 @@
 #lang racket/base
 
-(provide with-slots)
+(provide with-slots make-struct-type)
 (require (for-syntax racket/base racket/list racket/syntax syntax/datum syntax/parse syntax/parse/class/struct-id syntax/transformer
                      (only-in "control.rkt" if-let when-let)))
 (module+ test (require rackunit))
@@ -42,6 +42,11 @@
                                     [setter (in-list setters)])
                            (list name (make-transformer-stx #'obj getter setter)))
              body ...)))]))
+
+(define (make-struct-type* #:name name #:init-field-count init-field-cnt #:super-type [super-type #f] #:auto-field-count [auto-field-cnt 0]
+                           #:auto-v [auto-v #f] #:props [props '()] #:inspector [inspector (current-inspector)] #:proc-spec [proc-spec #f]
+                           #:immutables [immutables '()] #:guard [guard #f] #:constructor-name [constructor-name #f])
+  (make-struct-type name super-type init-field-cnt auto-field-cnt auto-v props inspector proc-spec immutables guard constructor-name))
 
 (module+ test
   (struct example (foo bar [baz #:mutable]) #:transparent)
