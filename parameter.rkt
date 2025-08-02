@@ -4,7 +4,7 @@
          (for-syntax racket/base syntax/parse))
 (module+ test (require rackunit))
 
-(provide define-parameter define-boolean-parameter)
+(provide define-parameter define-boolean-parameter let-parameters let*-parameters)
 
 (define-syntax (define-parameter stx)
   (syntax-parse stx
@@ -24,6 +24,23 @@
     ((define-boolean-parameter name:id initial-value:boolean obj-name:id)
      #'(define-parameter name initial-value make-boolean obj-name))))
 
+(define-syntax (let-parameters stx)
+  (syntax-parse stx
+    [(_ ([name:id initial-value:expr
+                  (~optional guard:expr #:defaults ([guard #'#f]))
+                  (~optional obj-name:id #:defaults ([obj-name #'name]))] ...)
+        body:expr ...+)
+     #'(let ([name (make-parameter initial-value guard 'obj-name)] ...) body ...)]))
+
+(define-syntax (let*-parameters stx)
+  (syntax-parse stx
+    [(_ ([name:id initial-value:expr
+                  (~optional guard:expr #:defaults ([guard #'#f]))
+                  (~optional obj-name:id #:defaults ([obj-name #'name]))] ...)
+        body:expr ...+)
+     #'(let* ([name (make-parameter initial-value guard 'obj-name)] ...) body ...)]))
+
+
 (module+ test
   (define-boolean-parameter foo)
   (check-equal? (foo) #t)
@@ -31,4 +48,7 @@
     (check-equal? (foo) #t))
   (parameterize ([foo #f])
     (check-equal? (foo) #f))
-  (check-equal? (object-name foo) 'foo))
+  (check-equal? (object-name foo) 'foo)
+  (check-equal? (let-parameters ([p 2]) (p)) 2)
+
+  )

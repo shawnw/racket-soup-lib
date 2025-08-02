@@ -676,6 +676,34 @@ Example:
 
 }
 
+@defform[(let-parameters (parameter-def ...) body ...+)
+         #:grammar [(parameter-def
+                     (id initial-value)
+                     (code:line (id initial-value guard))
+                     (code:line (id initial-value guard name)))]
+         #:contracts [(id identifier?)
+                      (initial-value any/c)
+                      (guard (or/c (-> any/c any/c) #f))
+                      (name identifier?)]]{
+
+ Lexicographically define parameters for @code{body} using @code{let}.
+
+}
+
+@defform[(let*-parameters (parameter-def ...) body ...+)
+         #:grammar [(parameter-def
+                     (id initial-value)
+                     (code:line (id initial-value guard))
+                     (code:line (id initial-value guard name)))]
+         #:contracts [(id identifier?)
+                      (initial-value any/c)
+                      (guard (or/c (-> any/c any/c) #f))
+                      (name identifier?)]]{
+
+ Lexicographically define parameters for @code{body} using @code{let*}.
+
+}
+
 @section{Math functions}
 
 @defmodule[soup-lib/math]
